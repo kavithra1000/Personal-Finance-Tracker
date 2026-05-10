@@ -1,0 +1,169 @@
+import Category from "../models/category.model.js";
+import User from "../models/user.model.js";
+
+export const addCategory = async (req, res) => {
+    try {
+        const { name, type, color } = req.body;
+
+        if (!name || !type) {
+            return res.status(400).json({
+                message: "Name and type are required",
+            });
+        }
+
+        const userId = req.user._id;
+
+        const category = await Category.create({
+            user: userId,
+            name,
+            type,
+            color,
+        });
+
+        res.status(201).json({
+            message: "Category created successfully",
+            category,
+        });
+    } catch (error) {
+        console.log("Add Category Error:", error.message);
+
+        res.status(500).json({
+            message: "Internal server error",
+        });
+    }
+};
+
+export const updateCategory = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, type, color } = req.body;
+
+        if (!id) {
+            return res.status(400).json({
+                message: "Category ID is required",
+            });
+        }
+
+        // Build dynamic update object
+        const updateData = {};
+
+        if (name) updateData.name = name;
+        if (type) updateData.type = type;
+        if (color) updateData.color = color;
+
+        // Prevent empty updates
+        if (Object.keys(updateData).length === 0) {
+            return res.status(400).json({
+                message: "No fields provided to update",
+            });
+        }
+
+        const updatedCategory = await Category.findOneAndUpdate(
+            {
+                _id: id,
+                user: req.user._id, // 🔐 ownership check
+            },
+            updateData,
+            {
+                new: true,
+                runValidators: true, // important for enum/type validation
+            }
+        );
+
+        if (!updatedCategory) {
+            return res.status(404).json({
+                message: "Category not found or not authorized",
+            });
+        }
+
+        res.status(200).json({
+            message: "Category updated successfully",
+            category: updatedCategory,
+        });
+    } catch (error) {
+        console.log("Update Category Error:", error.message);
+
+        res.status(500).json({
+            message: "Internal server error",
+        });
+    }
+};
+
+export const deleteCategory = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({
+                message: "ID is required",
+            });
+        }
+
+        const deletedCategory = await Category.findOneAndDelete({
+            _id: id,
+            user: req.user._id, // 🔐 important security check
+        });
+
+        if (!deletedCategory) {
+            return res.status(404).json({
+                message: "Category not found or not authorized",
+            });
+        }
+
+        res.status(200).json({
+            message: "Category deleted successfully",
+        });
+    } catch (error) {
+        console.log("Delete Category Error:", error.message);
+
+        res.status(500).json({
+            message: "Internal server error",
+        });
+    }
+};
+
+export const getCategories = async (req, res) => {
+  try {
+    const categories = await Category.find({
+      user: req.user._id,
+    }).sort({ createdAt: -1 });
+
+    res.status(200).json({
+      message: "Categories fetched successfully",
+      categories,
+    });
+  } catch (error) {
+    console.log("Get Categories Error:", error.message);
+
+    res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+
+export const getCategoryById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const category = await Category.findOne({
+      _id: id,
+      user: req.user._id,
+    });
+
+    if (!category) {
+      return res.status(404).json({
+        message: "Category not found",
+      });
+    }
+
+    res.status(200).json({
+      category,
+    });
+  } catch (error) {
+    console.log("Get Category Error:", error.message);
+
+    res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};

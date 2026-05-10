@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 
 import { connectDB } from "./config/db.js";
 import authRoutes from "./routes/auth.route.js";
+import categoryRoutes from "./routes/catagory.route.js";
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.use(
 );
 
 app.use("/api/auth", authRoutes);
+app.use("/api/category", categoryRoutes);
 
 // Test Route
 app.get("/", (req, res) => {
