@@ -5,6 +5,7 @@ import SignupPage from "./pages/SignupPage";
 import ProfilePage from "./pages/ProfilePage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import TransactionsPage from "./pages/TransactionsPage";
 import { useAuthStore } from "./store/useAuthStore";
 import { useEffect } from "react";
 import { Loader } from "lucide-react";
@@ -41,6 +42,8 @@ function App() {
           
           {/* Dashboard Placeholder */}
           <Route path="/dashboard" element={user ? <div className="p-8 text-center"><h1 className="text-3xl text-text-main">Dashboard (Coming Soon)</h1></div> : <Navigate to="/login" />} />
+          
+          <Route path="/transactions" element={user ? <TransactionsPage /> : <Navigate to="/login" />} />
         </Routes>
       </main>
     </div>
