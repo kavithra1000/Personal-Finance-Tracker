@@ -4,6 +4,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 
 import { connectDB } from "./config/db.js";
+import authRoutes from "./routes/auth.route.js";
 
 dotenv.config();
 
@@ -23,6 +24,8 @@ app.use(
     credentials: true,
   })
 );
+
+app.use("/api/auth", authRoutes);
 
 // Test Route
 app.get("/", (req, res) => {
