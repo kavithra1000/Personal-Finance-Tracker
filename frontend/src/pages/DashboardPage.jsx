@@ -6,6 +6,7 @@ import { Loader } from "lucide-react";
 // Components
 import DashboardHeader from "../components/dashboard/DashboardHeader";
 import SummaryStats from "../components/dashboard/SummaryStats";
+import BudgetAlerts from "../components/dashboard/BudgetAlerts";
 import CashflowChart from "../components/dashboard/CashflowChart";
 import BudgetProgress from "../components/dashboard/BudgetProgress";
 import ExpenseDistribution from "../components/dashboard/ExpenseDistribution";
@@ -46,6 +47,8 @@ export default function DashboardPage() {
         onYearChange={setFilterYear} 
         months={months}
       />
+
+      {!isLoading && <BudgetAlerts data={budgetVsActual} />}
 
       <SummaryStats summary={summary} />
 
