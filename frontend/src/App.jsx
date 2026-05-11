@@ -8,6 +8,7 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import TransactionsPage from "./pages/TransactionsPage";
 import BudgetsPage from "./pages/BudgetsPage";
 import CategoriesPage from "./pages/CategoriesPage";
+import DashboardPage from "./pages/DashboardPage";
 import { useAuthStore } from "./store/useAuthStore";
 import { useEffect } from "react";
 import { Loader } from "lucide-react";
@@ -30,7 +31,7 @@ function App() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
-      <main className="flex-grow">
+      <main className="grow">
         <Routes>
           <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Navigate to="/login" />} />
           
@@ -42,8 +43,7 @@ function App() {
           
           <Route path="/profile" element={user ? <ProfilePage /> : <Navigate to="/login" />} />
           
-          {/* Dashboard Placeholder */}
-          <Route path="/dashboard" element={user ? <div className="p-8 text-center"><h1 className="text-3xl text-text-main">Dashboard (Coming Soon)</h1></div> : <Navigate to="/login" />} />
+          <Route path="/dashboard" element={user ? <DashboardPage /> : <Navigate to="/login" />} />
           
           <Route path="/transactions" element={user ? <TransactionsPage /> : <Navigate to="/login" />} />
           <Route path="/budgets" element={user ? <BudgetsPage /> : <Navigate to="/login" />} />
