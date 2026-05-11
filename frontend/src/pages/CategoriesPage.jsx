@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Edit3, Trash2, Loader } from "lucide-react";
+import { Plus, Edit3, Trash2, Loader, Tag, TrendingUp, TrendingDown, Layers } from "lucide-react";
 import { useCategoryStore } from "../store/useCategoryStore";
 import CategoryForm from "../components/CategoryForm";
 
@@ -54,64 +54,72 @@ export default function CategoriesPage() {
   };
 
   return (
-    <div className="container mx-auto p-4 py-8 max-w-6xl">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
+      {/* Header section matching Dashboard style */}
+      <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-text-main">Categories</h1>
-          <p className="text-text-muted mt-1">Create, update, and organize income and expense categories.</p>
+          <p className="text-sm uppercase tracking-[0.3em] text-primary font-semibold">Organization</p>
+          <h1 className="mt-3 text-3xl font-semibold text-text-main">Categories</h1>
         </div>
+        
         <button
           onClick={openCreateModal}
-          className="inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-3 text-white shadow-lg shadow-primary/20 hover:bg-primary/90 transition-colors"
+          className="inline-flex items-center gap-2 rounded-2xl bg-primary px-6 py-3 text-white shadow-sm hover:bg-primary/90 transition-all active:scale-[0.98]"
         >
-          <Plus className="w-4 h-4" />
-          Add Category
+          <Plus className="w-5 h-5" />
+          <span className="font-medium">Add Category</span>
         </button>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-2">
-        <section className="rounded-3xl border border-slate-200 bg-surface p-6 shadow-sm">
+        {/* Expenses Section */}
+        <section className="bg-surface rounded-3xl border border-slate-200 p-6 shadow-sm">
           <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-xl font-semibold text-text-main">Expense Categories</h2>
-              <p className="text-sm text-text-muted mt-1">Track spending categories for budgets and transactions.</p>
+            <div className="flex items-center gap-3">
+               <div className="p-2 rounded-xl bg-rose-50 text-rose-600">
+                  <TrendingDown className="w-5 h-5" />
+               </div>
+               <h2 className="text-xl font-semibold text-text-main">Expenses</h2>
             </div>
-            <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">{expenseCategories.length}</span>
+            <span className="rounded-full bg-slate-50 px-3 py-1 text-xs font-semibold text-text-muted border border-slate-100">
+              {expenseCategories.length}
+            </span>
           </div>
 
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader className="h-8 w-8 animate-spin text-primary" />
+              <Loader className="w-8 h-8 animate-spin text-primary" />
             </div>
           ) : expenseCategories.length === 0 ? (
-            <div className="rounded-3xl border border-dashed border-slate-300 p-8 text-center text-sm text-text-muted">
-              No expense categories yet. Add one to start categorizing expenses.
+            <div className="rounded-2xl border-2 border-dashed border-slate-100 p-8 text-center text-sm text-text-muted">
+              No expense categories yet.
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {expenseCategories.map((category) => (
-                <div key={category._id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-3xl border border-slate-200 bg-background p-4">
+                <div key={category._id} className="group flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 transition-colors">
                   <div className="flex items-center gap-3">
-                    <span className="h-10 w-10 rounded-2xl" style={{ backgroundColor: category.color }} />
+                    <div 
+                      className="h-8 w-8 rounded-lg shadow-sm border-2 border-white" 
+                      style={{ backgroundColor: category.color }} 
+                    />
                     <div>
-                      <p className="font-semibold text-text-main">{category.name}</p>
-                      <p className="text-sm text-text-muted">{category.type}</p>
+                      <p className="font-medium text-text-main">{category.name}</p>
+                      <p className="text-[10px] text-text-muted uppercase tracking-wider">{category.type}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={() => handleEdit(category)}
-                      className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm text-text-muted hover:border-slate-300 hover:text-text-main transition-colors"
+                      className="p-1.5 text-text-muted hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
                     >
                       <Edit3 className="w-4 h-4" />
-                      Edit
                     </button>
                     <button
                       onClick={() => handleDelete(category._id)}
-                      className="inline-flex items-center gap-2 rounded-2xl bg-rose-50 px-4 py-2 text-sm font-medium text-rose-700 hover:bg-rose-100 transition-colors"
+                      className="p-1.5 text-text-muted hover:text-rose-600 hover:bg-rose-100 rounded-lg transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />
-                      Delete
                     </button>
                   </div>
                 </div>
@@ -120,48 +128,54 @@ export default function CategoriesPage() {
           )}
         </section>
 
-        <section className="rounded-3xl border border-slate-200 bg-surface p-6 shadow-sm">
+        {/* Income Section */}
+        <section className="bg-surface rounded-3xl border border-slate-200 p-6 shadow-sm">
           <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-xl font-semibold text-text-main">Income Categories</h2>
-              <p className="text-sm text-text-muted mt-1">Organize incoming funds for reporting and budgeting.</p>
+            <div className="flex items-center gap-3">
+               <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600">
+                  <TrendingUp className="w-5 h-5" />
+               </div>
+               <h2 className="text-xl font-semibold text-text-main">Income</h2>
             </div>
-            <span className="rounded-full bg-cyan-50 px-3 py-1 text-xs font-semibold text-cyan-700">{incomeCategories.length}</span>
+            <span className="rounded-full bg-slate-50 px-3 py-1 text-xs font-semibold text-text-muted border border-slate-100">
+              {incomeCategories.length}
+            </span>
           </div>
 
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader className="h-8 w-8 animate-spin text-primary" />
+              <Loader className="w-8 h-8 animate-spin text-primary" />
             </div>
           ) : incomeCategories.length === 0 ? (
-            <div className="rounded-3xl border border-dashed border-slate-300 p-8 text-center text-sm text-text-muted">
-              No income categories yet. Add one to identify income sources.
+            <div className="rounded-2xl border-2 border-dashed border-slate-100 p-8 text-center text-sm text-text-muted">
+              No income categories yet.
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {incomeCategories.map((category) => (
-                <div key={category._id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-3xl border border-slate-200 bg-background p-4">
+                <div key={category._id} className="group flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 transition-colors">
                   <div className="flex items-center gap-3">
-                    <span className="h-10 w-10 rounded-2xl" style={{ backgroundColor: category.color }} />
+                    <div 
+                      className="h-8 w-8 rounded-lg shadow-sm border-2 border-white" 
+                      style={{ backgroundColor: category.color }} 
+                    />
                     <div>
-                      <p className="font-semibold text-text-main">{category.name}</p>
-                      <p className="text-sm text-text-muted">{category.type}</p>
+                      <p className="font-medium text-text-main">{category.name}</p>
+                      <p className="text-[10px] text-text-muted uppercase tracking-wider">{category.type}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={() => handleEdit(category)}
-                      className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm text-text-muted hover:border-slate-300 hover:text-text-main transition-colors"
+                      className="p-1.5 text-text-muted hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
                     >
                       <Edit3 className="w-4 h-4" />
-                      Edit
                     </button>
                     <button
                       onClick={() => handleDelete(category._id)}
-                      className="inline-flex items-center gap-2 rounded-2xl bg-rose-50 px-4 py-2 text-sm font-medium text-rose-700 hover:bg-rose-100 transition-colors"
+                      className="p-1.5 text-text-muted hover:text-rose-600 hover:bg-rose-100 rounded-lg transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />
-                      Delete
                     </button>
                   </div>
                 </div>
