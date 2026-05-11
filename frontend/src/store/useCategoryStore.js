@@ -77,9 +77,9 @@ export const useCategoryStore = create((set) => ({
     }
   },
 
-  deleteCategory: async (id) => {
+  deleteCategory: async (id, transferToId) => {
     try {
-      await axiosInstance.delete(`/category/${id}`);
+      await axiosInstance.delete(`/category/${id}`, { data: { transferToId } });
       set((state) => ({ categories: state.categories.filter((category) => category._id !== id) }));
       return { success: true };
     } catch (error) {
