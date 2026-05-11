@@ -197,6 +197,31 @@ export const getCategories = async (req, res) => {
   }
 };
 
+export const checkCategoryExists = async (req, res) => {
+    try {
+        const { name, type } = req.query;
+        const userId = req.user._id;
+
+        if (!name || !type) {
+            return res.status(400).json({ message: "Name and type are required" });
+        }
+
+        const category = await Category.findOne({
+            user: userId,
+            name: name.toLowerCase(),
+            type: type
+        });
+
+        res.status(200).json({
+            exists: !!category,
+            categoryId: category?._id
+        });
+    } catch (error) {
+        console.log("Check Category Error:", error.message);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
 export const getCategoryById = async (req, res) => {
   try {
     const { id } = req.params;
