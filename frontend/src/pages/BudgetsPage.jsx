@@ -294,7 +294,7 @@ export default function BudgetsPage() {
                        <Tag className="w-6 h-6" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-text-main text-lg">{categoryName}</h3>
+                      <h3 className="font-semibold text-text-main text-lg">{categoryName}</h3>
                       <p className="text-[11px] font-bold text-text-muted uppercase tracking-widest">
                         {monthNames[budget.periodMonth - 1]} {budget.periodYear}
                       </p>
@@ -339,13 +339,13 @@ export default function BudgetsPage() {
                 <div className="grid grid-cols-2 gap-4 pt-6 border-t border-slate-50">
                    <div className="space-y-1">
                       <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Limit</p>
-                      <p className="text-xl font-bold text-text-main tracking-tight">${Number(budget.amount).toLocaleString()}</p>
+                      <p className="text-xl font-semibold text-text-main tracking-tight">${Number(budget.amount).toLocaleString()}</p>
                    </div>
                    <div className="space-y-1 text-right">
                       <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest">
                         {isOver ? 'Deficit' : 'Available'}
                       </p>
-                      <p className={`text-xl font-bold tracking-tight ${isOver ? 'text-rose-600' : 'text-emerald-600'}`}>
+                      <p className={`text-xl font-semibold tracking-tight ${isOver ? 'text-rose-600' : 'text-emerald-600'}`}>
                         ${Math.abs(Number(budget.remaining)).toLocaleString()}
                       </p>
                    </div>
