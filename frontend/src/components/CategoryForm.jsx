@@ -46,7 +46,16 @@ export default function CategoryForm({ category = null, onSave, onCancel, isSavi
       data.initialBudget = Number(formData.initialBudget);
     }
 
-    onSave(data);
+    const result = onSave(data);
+    
+    // If onSave returns a promise (which it does in CategoriesPage), handle the result
+    if (result instanceof Promise) {
+      result.then(res => {
+        if (!res?.success) {
+          setMessage(res?.message || "An error occurred while saving.");
+        }
+      });
+    }
   };
 
   return (

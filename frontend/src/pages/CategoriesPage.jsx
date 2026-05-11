@@ -107,11 +107,8 @@ export default function CategoriesPage() {
     if (response.success) {
       setIsModalOpen(false);
       setActiveCategory(null);
-      // If we were in the middle of a delete flow, the new category will now be in the store list
-      // for selection in the Delete modal.
-    } else {
-      alert(response.message || "Unable to save category.");
     }
+    return response;
   };
 
   const handleEdit = (category) => {
