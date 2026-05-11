@@ -170,78 +170,82 @@ export default function BudgetsPage() {
 
       {/* Advanced Filters and Search */}
       <div className="space-y-4 mb-8">
-        <div className="flex flex-col xl:flex-row gap-4 items-start xl:items-center justify-between">
-          {/* Primary Filters (Month/Year) */}
-          <div className="flex items-center gap-3 bg-surface p-1.5 rounded-2xl border border-slate-200 shadow-sm">
-             <div className="relative group">
-               <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-primary transition-colors pointer-events-none" />
-               <select
+        {/* Unified Filter & Search Bar */}
+      <div className="flex flex-col lg:flex-row gap-4 mb-8 items-start lg:items-center justify-between">
+        <div className="relative group w-full lg:w-96">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-primary transition-colors" />
+          <input
+            type="text"
+            placeholder="Search category..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-11 pr-4 py-3.5 rounded-[1.5rem] bg-surface border border-slate-200 shadow-sm focus:border-primary focus:ring-4 focus:ring-primary/5 outline-none transition-all text-sm font-medium"
+          />
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 bg-surface p-1.5 rounded-[1.5rem] border border-slate-200 shadow-sm w-full lg:w-auto overflow-x-auto no-scrollbar">
+          {/* Period Selector */}
+          <div className="flex items-center px-3 py-1 bg-slate-50/50 rounded-xl border border-slate-100">
+             <div className="relative flex items-center">
+                <Calendar className="w-3.5 h-3.5 text-slate-400 mr-2" />
+                <select
                   value={filterMonth}
                   onChange={(e) => setFilterMonth(Number(e.target.value))}
-                  className="pl-9 pr-8 py-2 rounded-xl bg-transparent text-sm font-semibold text-text-main outline-none appearance-none cursor-pointer hover:bg-slate-50 transition-colors"
+                  className="bg-transparent pr-4 py-1 text-sm font-semibold text-text-main outline-none appearance-none cursor-pointer"
                 >
-                  {monthNames.map((month, index) => (
-                    <option key={month} value={index + 1}>{month}</option>
+                  {monthNames.map((month, idx) => (
+                    <option key={month} value={idx + 1}>{month}</option>
                   ))}
                 </select>
-                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+                <ChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400 pointer-events-none" />
              </div>
-             <div className="w-px h-6 bg-slate-200 mx-1" />
+             <div className="w-px h-4 bg-slate-200 mx-3" />
              <input
                 type="number"
                 min="2024"
                 value={filterYear}
                 onChange={(e) => setFilterYear(Number(e.target.value))}
-                className="w-20 bg-transparent px-2 py-2 text-sm font-semibold text-text-main outline-none"
+                className="w-16 bg-transparent py-1 text-sm font-semibold text-text-main outline-none focus:text-primary transition-colors"
               />
           </div>
 
-          {/* Search & Sort */}
-          <div className="flex flex-col sm:flex-row gap-4 w-full xl:w-auto">
-            <div className="relative group flex-1 sm:w-64">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-primary transition-colors" />
-              <input
-                type="text"
-                placeholder="Search category..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 rounded-2xl bg-surface border border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/5 outline-none transition-all text-sm font-medium"
-              />
-            </div>
+          <div className="w-px h-6 bg-slate-200 hidden lg:block" />
 
-            <div className="flex gap-2">
-              <div className="relative flex-1 sm:w-40">
-                <Filter className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="w-full pl-9 pr-8 py-3 rounded-2xl bg-surface border border-slate-200 text-sm font-semibold text-text-main outline-none appearance-none cursor-pointer hover:border-primary transition-all"
-                >
-                  <option value="all">All Status</option>
-                  <option value="exceeded">Exceeded</option>
-                  <option value="near-limit">Near Limit</option>
-                  <option value="on-track">On Track</option>
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
-              </div>
+          {/* Status Filter */}
+          <div className="relative flex-1 lg:flex-none lg:w-40 min-w-[120px]">
+            <Filter className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="w-full pl-9 pr-8 py-2.5 rounded-xl bg-transparent text-sm font-semibold text-text-main outline-none appearance-none cursor-pointer hover:bg-slate-50 transition-colors"
+            >
+              <option value="all">All Status</option>
+              <option value="exceeded">Exceeded</option>
+              <option value="near-limit">Near Limit</option>
+              <option value="on-track">On Track</option>
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+          </div>
 
-              <div className="relative flex-1 sm:w-40">
-                <ArrowUpDown className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="w-full pl-9 pr-8 py-3 rounded-2xl bg-surface border border-slate-200 text-sm font-semibold text-text-main outline-none appearance-none cursor-pointer hover:border-primary transition-all"
-                >
-                  <option value="name">Name (A-Z)</option>
-                  <option value="amount-desc">Budget: High</option>
-                  <option value="amount-asc">Budget: Low</option>
-                  <option value="usage-desc">Most Usage</option>
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
-              </div>
-            </div>
+          <div className="w-px h-6 bg-slate-200 hidden lg:block" />
+
+          {/* Sort Control */}
+          <div className="relative flex-1 lg:flex-none lg:w-40 min-w-[120px]">
+            <ArrowUpDown className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="w-full pl-9 pr-8 py-2.5 rounded-xl bg-transparent text-sm font-semibold text-text-main outline-none appearance-none cursor-pointer hover:bg-slate-50 transition-colors"
+            >
+              <option value="name">Name (A-Z)</option>
+              <option value="amount-desc">Budget: High</option>
+              <option value="amount-asc">Budget: Low</option>
+              <option value="usage-desc">Most Usage</option>
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
           </div>
         </div>
+      </div>
       </div>
 
       {/* Budget List */}
