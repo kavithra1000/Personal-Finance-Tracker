@@ -13,6 +13,7 @@ import { useAuthStore } from "./store/useAuthStore";
 import { useEffect } from "react";
 import { Loader } from "lucide-react";
 import { Toaster } from "react-hot-toast";
+import Footer from "./components/Footer";
 
 function App() {
   const { user, checkAuth, isCheckingAuth } = useAuthStore();
@@ -52,6 +53,7 @@ function App() {
         </Routes>
       </main>
       <Toaster />
+      <Footer />
     </div>
   );
 }
