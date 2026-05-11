@@ -52,7 +52,7 @@ export default function BudgetCard({ budget, monthNames, handleEdit, handleDelet
           </button>
           <button
             onClick={() => handleDelete(budget)}
-            className="p-2 text-text-muted hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
+            className="p-2 text-text-muted hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all hidden"
           >
             <Trash2 className="w-4 h-4" />
           </button>
