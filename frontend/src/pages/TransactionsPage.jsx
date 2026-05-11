@@ -5,7 +5,7 @@ import { format, isToday, isYesterday, startOfDay } from "date-fns";
 import { 
   Plus, Trash2, Edit3, ArrowUpRight, ArrowDownRight, 
   Loader, Search, Filter, Calendar, Tag, ChevronRight,
-  TrendingUp, TrendingDown, Wallet
+  TrendingUp, TrendingDown, Wallet, ArrowUpDown, ChevronDown
 } from "lucide-react";
 import TransactionForm from "../components/TransactionForm";
 
@@ -22,6 +22,7 @@ export default function TransactionsPage() {
   const [filterType, setFilterType] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState("newest");
 
   useEffect(() => {
     fetchCategories();
@@ -55,11 +56,23 @@ export default function TransactionsPage() {
   };
 
   const filteredTransactions = useMemo(() => {
-    return transactions.filter(tx => 
+    let result = transactions.filter(tx => 
       tx.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (tx.note && tx.note.toLowerCase().includes(searchTerm.toLowerCase()))
     );
-  }, [transactions, searchTerm]);
+
+    // Apply Sorting
+    result.sort((a, b) => {
+      if (sortBy === "newest") return new Date(b.date) - new Date(a.date);
+      if (sortBy === "oldest") return new Date(a.date) - new Date(b.date);
+      if (sortBy === "amount-high") return Number(b.amount) - Number(a.amount);
+      if (sortBy === "amount-low") return Number(a.amount) - Number(b.amount);
+      if (sortBy === "title") return a.title.localeCompare(b.title);
+      return 0;
+    });
+
+    return result;
+  }, [transactions, searchTerm, sortBy]);
 
   const stats = useMemo(() => {
     const income = filteredTransactions.filter(t => t.type === "income").reduce((s, t) => s + Number(t.amount), 0);
@@ -76,10 +89,13 @@ export default function TransactionsPage() {
     });
     
     return Object.entries(groups)
-      .sort(([a], [b]) => new Date(b) - new Date(a))
+      .sort(([a], [b]) => {
+         if (sortBy === "oldest") return new Date(a) - new Date(b);
+         return new Date(b) - new Date(a);
+      })
       .map(([date, items]) => ({
         date: new Date(date),
-        items: items.sort((a, b) => new Date(b.date) - new Date(a.date))
+        items: items // items are already sorted by the main filteredTransactions sort
       }));
   }, [filteredTransactions]);
 
@@ -147,43 +163,74 @@ export default function TransactionsPage() {
         </div>
       </div>
 
-      {/* Filters & Search - Matching Dashboard layout */}
-      <div className="flex flex-col lg:flex-row gap-4 mb-8">
-        <div className="grow relative group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted group-focus-within:text-primary transition-colors" />
+      {/* Unified Filter & Search Bar */}
+      <div className="flex flex-col lg:flex-row gap-4 mb-8 items-start lg:items-center justify-between">
+        <div className="relative group w-full lg:w-96">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-primary transition-colors" />
           <input
             type="text"
+            placeholder="Search transactions..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search transactions..."
-            className="w-full pl-12 pr-6 py-3 rounded-2xl bg-surface border border-slate-200 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-text-main"
+            className="w-full pl-11 pr-4 py-3.5 rounded-[1.5rem] bg-surface border border-slate-200 shadow-sm focus:border-primary focus:ring-4 focus:ring-primary/5 outline-none transition-all text-sm font-medium"
           />
         </div>
-        
-        <div className="flex items-center gap-3 bg-surface p-1.5 rounded-2xl border border-slate-200 shadow-sm">
-           <select
+
+        <div className="flex flex-wrap items-center gap-3 bg-surface p-1.5 rounded-[1.5rem] border border-slate-200 shadow-sm w-full lg:w-auto">
+          {/* Type Filter */}
+          <div className="relative flex-1 lg:flex-none lg:w-40 min-w-[120px]">
+            <Filter className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+            <select
               value={filterType}
               onChange={(e) => {
                 setFilterType(e.target.value);
                 setFilterCategory("");
               }}
-              className="rounded-xl bg-background px-4 py-2 text-sm font-medium text-text-main outline-none border-none focus:ring-2 focus:ring-primary/10 appearance-none cursor-pointer"
+              className="w-full pl-9 pr-8 py-2.5 rounded-xl bg-transparent text-sm font-semibold text-text-main outline-none appearance-none cursor-pointer hover:bg-slate-50 transition-colors"
             >
               <option value="">All Types</option>
               <option value="income">Income</option>
               <option value="expense">Expense</option>
             </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+          </div>
 
+          <div className="w-px h-6 bg-slate-200 hidden lg:block" />
+
+          {/* Category Filter */}
+          <div className="relative flex-1 lg:flex-none lg:w-44 min-w-[140px]">
+            <Tag className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
-              className="rounded-xl bg-background px-4 py-2 text-sm font-medium text-text-main outline-none border-none focus:ring-2 focus:ring-primary/10 appearance-none cursor-pointer min-w-[140px]"
+              className="w-full pl-9 pr-8 py-2.5 rounded-xl bg-transparent text-sm font-semibold text-text-main outline-none appearance-none cursor-pointer hover:bg-slate-50 transition-colors"
             >
               <option value="">All Categories</option>
               {categories.filter(c => !filterType || c.type === filterType).map((category) => (
                 <option key={category._id} value={category._id}>{category.name}</option>
               ))}
             </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+          </div>
+
+          <div className="w-px h-6 bg-slate-200 hidden lg:block" />
+
+          {/* Sort Control */}
+          <div className="relative flex-1 lg:flex-none lg:w-40 min-w-[120px]">
+            <ArrowUpDown className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="w-full pl-9 pr-8 py-2.5 rounded-xl bg-transparent text-sm font-semibold text-text-main outline-none appearance-none cursor-pointer hover:bg-slate-50 transition-colors"
+            >
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+              <option value="amount-high">Amount: High</option>
+              <option value="amount-low">Amount: Low</option>
+              <option value="title">Title (A-Z)</option>
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+          </div>
         </div>
       </div>
 

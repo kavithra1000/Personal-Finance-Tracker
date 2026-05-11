@@ -1,26 +1,93 @@
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Edit3, Trash2, Loader, Tag, TrendingUp, TrendingDown, Layers } from "lucide-react";
+import { 
+  Plus, Edit3, Trash2, Loader, Tag, 
+  TrendingUp, TrendingDown, Layers, 
+  Search, Filter, ChevronDown, PieChart,
+  ArrowUpDown, Activity, DollarSign
+} from "lucide-react";
 import { useCategoryStore } from "../store/useCategoryStore";
+import { useTransactionStore } from "../store/useTransactionStore";
+import { useBudgetStore } from "../store/useBudgetStore";
 import CategoryForm from "../components/CategoryForm";
+import { startOfMonth, endOfMonth } from "date-fns";
 
 export default function CategoriesPage() {
   const { categories, isLoading, fetchCategories, addCategory, updateCategory, deleteCategory } = useCategoryStore();
+  const { transactions, fetchTransactions } = useTransactionStore();
+  const { budgets, fetchBudgets } = useBudgetStore();
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
 
+  // Filters and Sorting
+  const [searchQuery, setSearchQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("name-asc");
+
   useEffect(() => {
     fetchCategories();
-  }, [fetchCategories]);
+    fetchTransactions();
+    fetchBudgets({
+      periodMonth: new Date().getMonth() + 1,
+      periodYear: new Date().getFullYear()
+    });
+  }, [fetchCategories, fetchTransactions, fetchBudgets]);
 
-  const expenseCategories = useMemo(
-    () => categories.filter((category) => category.type === "expense"),
-    [categories]
-  );
-  const incomeCategories = useMemo(
-    () => categories.filter((category) => category.type === "income"),
-    [categories]
-  );
+  const stats = useMemo(() => {
+    const total = categories.length;
+    const expenses = categories.filter(c => c.type === "expense").length;
+    const income = categories.filter(c => c.type === "income").length;
+    return { total, expenses, income };
+  }, [categories]);
+
+  // Calculate insights for each category
+  const categoryInsights = useMemo(() => {
+    const now = new Date();
+    const start = startOfMonth(now);
+    const end = endOfMonth(now);
+
+    const insightMap = {};
+    
+    categories.forEach(cat => {
+      const catTransactions = transactions.filter(t => t.category?._id === cat._id || t.category === cat._id);
+      const monthlyTransactions = catTransactions.filter(t => {
+        const d = new Date(t.date);
+        return d >= start && d <= end;
+      });
+      
+      const totalAmount = monthlyTransactions.reduce((sum, t) => sum + Number(t.amount), 0);
+      const budget = budgets.find(b => (b.category?._id === cat._id || b.category === cat._id));
+
+      insightMap[cat._id] = {
+        totalCount: catTransactions.length,
+        monthlyAmount: totalAmount,
+        hasBudget: !!budget,
+        budgetAmount: budget?.amount || 0
+      };
+    });
+
+    return insightMap;
+  }, [categories, transactions, budgets]);
+
+  const filteredCategories = useMemo(() => {
+    let result = categories.filter(cat => {
+      const matchesSearch = cat.name.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesType = typeFilter === "all" || cat.type === typeFilter;
+      return matchesSearch && matchesType;
+    });
+
+    // Apply Sorting
+    result.sort((a, b) => {
+      if (sortBy === "name-asc") return a.name.localeCompare(b.name);
+      if (sortBy === "name-desc") return b.name.localeCompare(a.name);
+      if (sortBy === "type") return a.type.localeCompare(b.type);
+      if (sortBy === "newest") return new Date(b.createdAt) - new Date(a.createdAt);
+      return 0;
+    });
+
+    return result;
+  }, [categories, searchQuery, typeFilter, sortBy]);
 
   const openCreateModal = () => {
     setActiveCategory(null);
@@ -55,8 +122,8 @@ export default function CategoriesPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
-      {/* Header section matching Dashboard style */}
-      <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between mb-8">
+      {/* Header section */}
+      <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between mb-10">
         <div>
           <p className="text-sm uppercase tracking-[0.3em] text-primary font-semibold">Organization</p>
           <h1 className="mt-3 text-3xl font-semibold text-text-main">Categories</h1>
@@ -64,125 +131,182 @@ export default function CategoriesPage() {
         
         <button
           onClick={openCreateModal}
-          className="inline-flex items-center gap-2 rounded-2xl bg-primary px-6 py-3 text-white shadow-sm hover:bg-primary/90 transition-all active:scale-[0.98]"
+          className="inline-flex items-center gap-2 rounded-2xl bg-primary px-6 py-3 text-white shadow-sm hover:bg-primary/90 transition-all active:scale-[0.98] font-semibold"
         >
           <Plus className="w-5 h-5" />
-          <span className="font-medium">Add Category</span>
+          <span>Add Category</span>
         </button>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-2">
-        {/* Expenses Section */}
-        <section className="bg-surface rounded-3xl border border-slate-200 p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-               <div className="p-2 rounded-xl bg-rose-50 text-rose-600">
-                  <TrendingDown className="w-5 h-5" />
-               </div>
-               <h2 className="text-xl font-semibold text-text-main">Expenses</h2>
-            </div>
-            <span className="rounded-full bg-slate-50 px-3 py-1 text-xs font-semibold text-text-muted border border-slate-100">
-              {expenseCategories.length}
-            </span>
+      {/* Summary Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <div className="bg-surface p-6 rounded-[2rem] border border-slate-200 shadow-sm flex items-center gap-5 transition-all hover:shadow-md">
+          <div className="p-4 rounded-2xl bg-blue-50 text-primary">
+            <Layers className="w-6 h-6" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-text-muted">Total Categories</p>
+            <p className="text-2xl font-bold text-text-main">{stats.total}</p>
+          </div>
+        </div>
+
+        <div className="bg-surface p-6 rounded-[2rem] border border-slate-200 shadow-sm flex items-center gap-5 transition-all hover:shadow-md">
+          <div className="p-4 rounded-2xl bg-rose-50 text-rose-600">
+            <TrendingDown className="w-6 h-6" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-text-muted">Expense Types</p>
+            <p className="text-2xl font-bold text-text-main">{stats.expenses}</p>
+          </div>
+        </div>
+
+        <div className="bg-surface p-6 rounded-[2rem] border border-slate-200 shadow-sm flex items-center gap-5 transition-all hover:shadow-md">
+          <div className="p-4 rounded-2xl bg-emerald-50 text-emerald-600">
+            <TrendingUp className="w-6 h-6" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-text-muted">Income Types</p>
+            <p className="text-2xl font-bold text-text-main">{stats.income}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Filter Bar */}
+      <div className="flex flex-col lg:flex-row gap-4 mb-8 items-start lg:items-center justify-between">
+        <div className="relative group w-full lg:w-96">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-primary transition-colors" />
+          <input
+            type="text"
+            placeholder="Search categories..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-11 pr-4 py-3.5 rounded-[1.5rem] bg-surface border border-slate-200 shadow-sm focus:border-primary focus:ring-4 focus:ring-primary/5 outline-none transition-all text-sm font-medium"
+          />
+        </div>
+
+        <div className="flex items-center gap-3 bg-surface p-1.5 rounded-[1.5rem] border border-slate-200 shadow-sm w-full lg:w-auto overflow-x-auto no-scrollbar">
+          <div className="relative flex-1 lg:flex-none lg:w-40 min-w-[120px]">
+            <Filter className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              className="w-full pl-9 pr-8 py-2.5 rounded-xl bg-transparent text-sm font-semibold text-text-main outline-none appearance-none cursor-pointer hover:bg-slate-50 transition-colors"
+            >
+              <option value="all">All Types</option>
+              <option value="expense">Expenses</option>
+              <option value="income">Income</option>
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
           </div>
 
-          {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader className="w-8 h-8 animate-spin text-primary" />
-            </div>
-          ) : expenseCategories.length === 0 ? (
-            <div className="rounded-2xl border-2 border-dashed border-slate-100 p-8 text-center text-sm text-text-muted">
-              No expense categories yet.
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {expenseCategories.map((category) => (
-                <div key={category._id} className="group flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div 
-                      className="h-8 w-8 rounded-lg shadow-sm border-2 border-white" 
-                      style={{ backgroundColor: category.color }} 
-                    />
-                    <div>
-                      <p className="font-medium text-text-main">{category.name}</p>
-                      <p className="text-[10px] text-text-muted uppercase tracking-wider">{category.type}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={() => handleEdit(category)}
-                      className="p-1.5 text-text-muted hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
-                    >
-                      <Edit3 className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(category._id)}
-                      className="p-1.5 text-text-muted hover:text-rose-600 hover:bg-rose-100 rounded-lg transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
+          <div className="w-px h-6 bg-slate-200 hidden lg:block" />
 
-        {/* Income Section */}
-        <section className="bg-surface rounded-3xl border border-slate-200 p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-               <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600">
-                  <TrendingUp className="w-5 h-5" />
-               </div>
-               <h2 className="text-xl font-semibold text-text-main">Income</h2>
-            </div>
-            <span className="rounded-full bg-slate-50 px-3 py-1 text-xs font-semibold text-text-muted border border-slate-100">
-              {incomeCategories.length}
-            </span>
+          <div className="relative flex-1 lg:flex-none lg:w-44 min-w-[140px]">
+            <ArrowUpDown className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="w-full pl-9 pr-8 py-2.5 rounded-xl bg-transparent text-sm font-semibold text-text-main outline-none appearance-none cursor-pointer hover:bg-slate-50 transition-colors"
+            >
+              <option value="name-asc">Name (A-Z)</option>
+              <option value="name-desc">Name (Z-A)</option>
+              <option value="type">By Type</option>
+              <option value="newest">Newest First</option>
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
           </div>
+        </div>
+      </div>
 
-          {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader className="w-8 h-8 animate-spin text-primary" />
+      {/* Main List View */}
+      <div className="bg-surface rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden mb-12 min-h-[300px]">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-24">
+            <Loader className="w-10 h-10 animate-spin text-primary" />
+          </div>
+        ) : filteredCategories.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <div className="p-6 rounded-full bg-slate-50 mb-4">
+              <Search className="w-10 h-10 text-slate-300" />
             </div>
-          ) : incomeCategories.length === 0 ? (
-            <div className="rounded-2xl border-2 border-dashed border-slate-100 p-8 text-center text-sm text-text-muted">
-              No income categories yet.
+            <h3 className="text-xl font-semibold text-text-main">No categories found</h3>
+            <p className="text-sm text-text-muted mt-2">Try adjusting your filters or create a new one.</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-100">
+            {/* List Header */}
+            <div className="bg-slate-50/50 px-8 py-3 border-b border-slate-100">
+               <p className="text-[10px] font-bold text-text-muted uppercase tracking-[0.2em]">
+                  Managing {filteredCategories.length} {typeFilter === "all" ? "Categories" : `${typeFilter} Categories`}
+               </p>
             </div>
-          ) : (
-            <div className="space-y-2">
-              {incomeCategories.map((category) => (
-                <div key={category._id} className="group flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div 
-                      className="h-8 w-8 rounded-lg shadow-sm border-2 border-white" 
-                      style={{ backgroundColor: category.color }} 
-                    />
-                    <div>
-                      <p className="font-medium text-text-main">{category.name}</p>
-                      <p className="text-[10px] text-text-muted uppercase tracking-wider">{category.type}</p>
+
+            <div className="divide-y divide-slate-100">
+              {filteredCategories.map((category) => {
+                const insight = categoryInsights[category._id] || { totalCount: 0, monthlyAmount: 0 };
+                return (
+                  <div 
+                    key={category._id} 
+                    className="group flex items-center justify-between p-4 px-8 hover:bg-slate-50 transition-colors"
+                  >
+                    <div className="flex items-center gap-5">
+                      <div 
+                        className="h-11 w-11 rounded-2xl flex items-center justify-center text-white shadow-sm border-2 border-white transition-transform group-hover:scale-105" 
+                        style={{ backgroundColor: category.color }}
+                      >
+                        <Tag className="w-5 h-5 drop-shadow-sm" />
+                      </div>
+                      
+                      <div>
+                        <div className="flex items-center gap-3">
+                          <h3 className="font-semibold text-text-main text-lg leading-none">{category.name}</h3>
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[9px] font-black uppercase tracking-wider border ${
+                            category.type === "expense" 
+                              ? "bg-rose-50 text-rose-600 border-rose-100" 
+                              : "bg-emerald-50 text-emerald-600 border-emerald-100"
+                          }`}>
+                            {category.type === "expense" ? <TrendingDown className="w-3 h-3" /> : <TrendingUp className="w-3 h-3" />}
+                            {category.type}
+                          </span>
+                        </div>
+                        <div className="text-xs text-text-muted mt-1.5 flex items-center gap-3">
+                          <span className="flex items-center gap-1">
+                            <Activity className="w-3 h-3" />
+                            {insight.totalCount} {insight.totalCount === 1 ? 'Transaction' : 'Transactions'}
+                          </span>
+                          <span className="w-1 h-1 rounded-full bg-slate-300" />
+                          <span className="flex items-center gap-1 font-medium text-slate-500">
+                            <DollarSign className="w-3 h-3" />
+                            {insight.monthlyAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })} this month
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0">
+                        <button
+                          onClick={() => handleEdit(category)}
+                          className="p-2.5 text-text-muted hover:text-primary hover:bg-primary/5 rounded-xl transition-all"
+                          title="Edit Category"
+                        >
+                          <Edit3 className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(category._id)}
+                          className="p-2.5 text-text-muted hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
+                          title="Delete Category"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={() => handleEdit(category)}
-                      className="p-1.5 text-text-muted hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
-                    >
-                      <Edit3 className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(category._id)}
-                      className="p-1.5 text-text-muted hover:text-rose-600 hover:bg-rose-100 rounded-lg transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
-          )}
-        </section>
+          </div>
+        )}
       </div>
 
       {isModalOpen && (
