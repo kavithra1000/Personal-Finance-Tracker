@@ -36,7 +36,7 @@ export default function Navbar() {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <nav className={`sticky top-0 z-[100] w-full transition-all duration-300 ${
+    <nav className={`sticky top-0 z-[2] w-full transition-all duration-300 ${
       isScrolled 
         ? "bg-white/80 backdrop-blur-lg shadow-sm py-2" 
         : "bg-background py-4"
