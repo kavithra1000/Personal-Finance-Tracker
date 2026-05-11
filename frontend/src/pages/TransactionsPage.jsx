@@ -8,6 +8,7 @@ import {
   TrendingUp, TrendingDown, Wallet, ArrowUpDown, ChevronDown, MoreVertical
 } from "lucide-react";
 import TransactionForm from "../components/TransactionForm";
+import DeleteTransactionModal from "../components/DeleteTransactionModal";
 
 export default function TransactionsPage() {
   const { 
@@ -24,6 +25,7 @@ export default function TransactionsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("newest");
   const [expandedId, setExpandedId] = useState(null);
+  const [transactionToDelete, setTransactionToDelete] = useState(null);
 
   useEffect(() => {
     fetchCategories();
@@ -33,9 +35,14 @@ export default function TransactionsPage() {
     fetchTransactions({ type: filterType, category: filterCategory });
   }, [fetchTransactions, filterType, filterCategory]);
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this transaction?")) {
-      await deleteTransaction(id);
+  const handleDelete = (transaction) => {
+    setTransactionToDelete(transaction);
+  };
+
+  const confirmDelete = async () => {
+    if (transactionToDelete) {
+      await deleteTransaction(transactionToDelete._id);
+      setTransactionToDelete(null);
     }
   };
 
@@ -324,7 +331,7 @@ export default function TransactionsPage() {
                               <Edit3 className="w-4 h-4" />
                             </button>
                             <button
-                              onClick={() => handleDelete(tx._id)}
+                              onClick={() => handleDelete(tx)}
                               disabled={isDeleting}
                               className="p-2 md:p-2.5 text-text-muted hover:text-rose-600 hover:bg-white rounded-xl transition-all shadow-sm border border-transparent hover:border-slate-200"
                               title="Delete"
@@ -348,6 +355,15 @@ export default function TransactionsPage() {
           onCancel={handleClose}
           onSave={handleSave}
           isSaving={isUpdating}
+        />
+      )}
+
+      {transactionToDelete && (
+        <DeleteTransactionModal
+          transaction={transactionToDelete}
+          onConfirm={confirmDelete}
+          onCancel={() => setTransactionToDelete(null)}
+          isDeleting={isDeleting}
         />
       )}
     </div>
