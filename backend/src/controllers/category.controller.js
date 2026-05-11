@@ -1,5 +1,6 @@
 import Category from "../models/category.model.js";
 import User from "../models/user.model.js";
+import Budget from "../models/budget.model.js";
 
 export const addCategory = async (req, res) => {
     try {
@@ -74,6 +75,16 @@ export const updateCategory = async (req, res) => {
             return res.status(404).json({
                 message: "Category not found or not authorized",
             });
+        }
+
+        // If the type was changed to "income", delete any associated budgets
+        if (type === "income") {
+            try {
+                await Budget.deleteMany({ category: id, user: req.user._id });
+            } catch (budgetError) {
+                console.log("Budget cleanup error:", budgetError.message);
+                // We still proceed as the category update was successful
+            }
         }
 
         res.status(200).json({
