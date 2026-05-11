@@ -94,7 +94,7 @@ export default function TransactionList({
                 </div>
 
                 <div className="flex items-center justify-between sm:justify-end gap-4 md:gap-8 mt-3 sm:mt-0 pt-3 sm:pt-0 border-t sm:border-0 border-slate-100">
-                  <p className={`text-base md:text-xl font-black ${tx.type === "income" ? "text-emerald-600" : "text-text-main"}`}>
+                  <p className={`text-base md:text-xl font-bold ${tx.type === "income" ? "text-emerald-600" : "text-rose-600"}`}>
                     {tx.type === "income" ? "+" : "-"}${Number(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                   

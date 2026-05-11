@@ -1,4 +1,3 @@
-import React from 'react';
 import { Tag, Edit3, Trash2 } from 'lucide-react';
 
 /**
@@ -94,7 +93,7 @@ export default function BudgetCard({ budget, monthNames, handleEdit, handleDelet
             Limit
           </p>
           <p className="text-lg md:text-xl font-bold text-text-main tracking-tight">
-            {Number(budget.amount).toLocaleString()}
+            {Number(budget.amount).toLocaleString()}$
           </p>
         </div>
         <div className="space-y-1 text-right">
@@ -102,7 +101,7 @@ export default function BudgetCard({ budget, monthNames, handleEdit, handleDelet
             {isOver ? 'Deficit' : 'Available'}
           </p>
           <p className={`text-lg md:text-xl font-bold tracking-tight ${isOver ? 'text-rose-600' : 'text-emerald-600'}`}>
-            {Math.abs(Number(budget.remaining)).toLocaleString()}
+            {Math.abs(Number(budget.remaining)).toLocaleString()}$
           </p>
         </div>
       </div>

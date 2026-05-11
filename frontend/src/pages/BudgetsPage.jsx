@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  Plus, Loader, Search, Filter, ArrowUpDown, ChevronDown, Calendar, Target, Tag, Wallet, AlertCircle, TrendingDown, TrendingUp, ChevronRight, PieChart, Edit3, Trash2
-} from "lucide-react";
+  Plus, Loader, Search } from "lucide-react";
 import { useBudgetStore } from "../store/useBudgetStore";
 import { useCategoryStore } from "../store/useCategoryStore";
 import BudgetForm from "../components/BudgetForm";

@@ -94,8 +94,8 @@ export default function BudgetForm({ budget, categories, onSave, onCancel, isSav
             </h2>
             <p className="text-[10px] md:text-sm text-text-muted mt-0.5">Set limits for your spending.</p>
           </div>
-          <button 
-            onClick={onCancel} 
+          <button
+            onClick={onCancel}
             className="p-2 rounded-full hover:bg-slate-100 text-text-muted transition-all active:scale-90 shrink-0"
           >
             <X className="w-5 h-5 md:w-6 md:h-6" />
@@ -106,89 +106,94 @@ export default function BudgetForm({ budget, categories, onSave, onCancel, isSav
         <div className="px-5 md:px-8 py-3 md:py-4 overflow-y-auto custom-scrollbar flex-1">
           <form id="budget-form" onSubmit={handleSubmit} className="space-y-5 md:space-y-6">
             {/* Category Section */}
-            <div className="space-y-1.5 md:space-y-2">
-              <div className="flex justify-between items-center px-1">
-                <label className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-text-muted">Category</label>
-                {!isCreatingCategory && (
-                  <button
-                    type="button"
-                    onClick={() => setIsCreatingCategory(true)}
-                    className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-primary hover:text-primary-dark transition-colors flex items-center gap-1 bg-primary/5 px-2 py-1 rounded-lg"
-                  >
-                    <Plus className="w-3 h-3" />
-                    New
-                  </button>
-                )}
-              </div>
 
-              {isCreatingCategory ? (
-                <div className="p-4 md:p-5 bg-slate-50 border border-slate-200 rounded-2xl md:rounded-[2rem] flex flex-col gap-3 md:gap-4 animate-in slide-in-from-top-2 duration-200">
-                  <div className="flex justify-between items-center">
-                    <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-slate-400">Quick Create Category</span>
-                    <button 
-                      type="button"
-                      onClick={() => setIsCreatingCategory(false)}
-                      className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-rose-500 hover:text-rose-700 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                  <input
-                    type="text"
-                    value={newCategoryName}
-                    onChange={(e) => setNewCategoryName(e.target.value)}
-                    className="w-full px-4 md:px-5 py-2.5 md:py-3 rounded-xl md:rounded-2xl bg-white border border-slate-200 text-xs md:text-sm focus:border-primary outline-none shadow-sm font-medium"
-                    placeholder="Category Name..."
-                    autoFocus
-                  />
-                  <div className="flex gap-3 items-center">
-                    <div className="relative group h-10 md:h-12 w-16 md:w-20 shrink-0">
-                       <input
-                        type="color"
-                        value={newCategoryColor}
-                        onChange={(e) => setNewCategoryColor(e.target.value)}
-                        className="w-full h-full p-1 rounded-xl border border-slate-200 cursor-pointer bg-white overflow-hidden"
-                      />
-                    </div>
+            {/* Category Section */}
+            {!budget && (
+              <div className="space-y-1.5 md:space-y-2">
+                <div className="flex justify-between items-center px-1">
+                  <label className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-text-muted">Category</label>
+                  {!isCreatingCategory && (
                     <button
                       type="button"
-                      onClick={handleCreateCategory}
-                      disabled={isAddingCategory || !newCategoryName.trim()}
-                      className="flex-1 py-2.5 md:py-3 bg-primary text-white text-xs md:text-sm font-bold rounded-xl md:rounded-2xl hover:bg-primary-dark transition-all active:scale-[0.98] disabled:opacity-50 shadow-lg shadow-primary/20"
+                      onClick={() => setIsCreatingCategory(true)}
+                      className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-primary hover:text-primary-dark transition-colors flex items-center gap-1 bg-primary/5 px-2 py-1 rounded-lg"
                     >
-                      {isAddingCategory ? "Creating..." : "Create"}
+                      <Plus className="w-3 h-3" />
+                      New
                     </button>
-                  </div>
+                  )}
                 </div>
-              ) : (
-                <div className="relative group">
-                   <div className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 flex items-center justify-center pointer-events-none">
-                     {formData.category ? (
-                        <div 
-                          className="h-3 w-3 rounded-full" 
-                          style={{ backgroundColor: categories.find(c => c._id === formData.category)?.color || '#94a3b8' }} 
+
+                {isCreatingCategory ? (
+                  <div className="p-4 md:p-5 bg-slate-50 border border-slate-200 rounded-2xl md:rounded-[2rem] flex flex-col gap-3 md:gap-4 animate-in slide-in-from-top-2 duration-200">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-slate-400">Quick Create Category</span>
+                      <button
+                        type="button"
+                        onClick={() => setIsCreatingCategory(false)}
+                        className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-rose-500 hover:text-rose-700 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                    <input
+                      type="text"
+                      value={newCategoryName}
+                      onChange={(e) => setNewCategoryName(e.target.value)}
+                      className="w-full px-4 md:px-5 py-2.5 md:py-3 rounded-xl md:rounded-2xl bg-white border border-slate-200 text-xs md:text-sm focus:border-primary outline-none shadow-sm font-medium"
+                      placeholder="Category Name..."
+                      autoFocus
+                    />
+                    <div className="flex gap-3 items-center">
+                      <div className="relative group h-10 md:h-12 w-16 md:w-20 shrink-0">
+                        <input
+                          type="color"
+                          value={newCategoryColor}
+                          onChange={(e) => setNewCategoryColor(e.target.value)}
+                          className="w-full h-full p-1 rounded-xl border border-slate-200 cursor-pointer bg-white overflow-hidden"
                         />
-                     ) : (
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleCreateCategory}
+                        disabled={isAddingCategory || !newCategoryName.trim()}
+                        className="flex-1 py-2.5 md:py-3 bg-primary text-white text-xs md:text-sm font-bold rounded-xl md:rounded-2xl hover:bg-primary-dark transition-all active:scale-[0.98] disabled:opacity-50 shadow-lg shadow-primary/20"
+                      >
+                        {isAddingCategory ? "Creating..." : "Create"}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="relative group">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 flex items-center justify-center pointer-events-none">
+                      {formData.category ? (
+                        <div
+                          className="h-3 w-3 rounded-full"
+                          style={{ backgroundColor: categories.find(c => c._id === formData.category)?.color || '#94a3b8' }}
+                        />
+                      ) : (
                         <Tag className="w-4 h-4 md:w-5 md:h-5 text-slate-400 group-focus-within:text-primary transition-colors" />
-                     )}
-                   </div>
-                  <select
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full pl-11 md:pl-12 pr-10 py-3 md:py-3.5 rounded-xl md:rounded-2xl bg-slate-50 border border-slate-200 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 outline-none transition-all text-text-main font-medium text-sm md:text-base appearance-none cursor-pointer"
-                    required
-                  >
-                    <option value="" disabled>Choose a category</option>
-                    {categories
-                      .filter((category) => category.type === "expense")
-                      .map((cat) => (
-                        <option key={cat._id} value={cat._id}>{cat.name}</option>
-                      ))}
-                  </select>
-                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 md:w-4 md:h-4 text-slate-400 pointer-events-none" />
-                </div>
-              )}
-            </div>
+                      )}
+                    </div>
+                    <select
+                      value={formData.category}
+                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                      className="w-full pl-11 md:pl-12 pr-10 py-3 md:py-3.5 rounded-xl md:rounded-2xl bg-slate-50 border border-slate-200 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 outline-none transition-all text-text-main font-medium text-sm md:text-base appearance-none cursor-pointer"
+                      required
+                    >
+                      <option value="" disabled>Choose a category</option>
+                      {categories
+                        .filter((category) => category.type === "expense")
+                        .map((cat) => (
+                          <option key={cat._id} value={cat._id}>{cat.name}</option>
+                        ))}
+                    </select>
+                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 md:w-4 md:h-4 text-slate-400 pointer-events-none" />
+                  </div>
+                )}
+              </div>
+            )}
+
 
             {/* Amount */}
             <div className="space-y-1.5 md:space-y-2">
