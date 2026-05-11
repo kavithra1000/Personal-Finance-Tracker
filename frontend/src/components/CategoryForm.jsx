@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { X, Loader, Tag, Palette, TrendingUp, TrendingDown, DollarSign } from "lucide-react";
+import { useCategoryStore } from "../store/useCategoryStore";
 
 export default function CategoryForm({ category = null, onSave, onCancel, isSaving }) {
   const [formData, setFormData] = useState({
@@ -9,6 +10,18 @@ export default function CategoryForm({ category = null, onSave, onCancel, isSavi
     initialBudget: "",
   });
   const [message, setMessage] = useState("");
+  const { checkCategoryExists } = useCategoryStore();
+
+  const handleBlur = async () => {
+    if (!formData.name.trim()) return;
+    
+    const result = await checkCategoryExists(formData.name.trim(), formData.type);
+    if (result.exists && result.categoryId !== category?._id) {
+      setMessage(`Category '${formData.name}' already exists as an ${formData.type}.`);
+    } else if (message.includes("already exists")) {
+      setMessage("");
+    }
+  };
 
   useEffect(() => {
     if (category) {
@@ -96,6 +109,7 @@ export default function CategoryForm({ category = null, onSave, onCancel, isSavi
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onBlur={handleBlur}
                   className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-slate-50 border border-slate-200 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 outline-none transition-all text-text-main font-medium"
                   placeholder="e.g. Shopping, Salary, Bills"
                   required
