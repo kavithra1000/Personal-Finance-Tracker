@@ -12,6 +12,7 @@ import DashboardPage from "./pages/DashboardPage";
 import { useAuthStore } from "./store/useAuthStore";
 import { useEffect } from "react";
 import { Loader } from "lucide-react";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   const { user, checkAuth, isCheckingAuth } = useAuthStore();
@@ -50,6 +51,7 @@ function App() {
           <Route path="/categories" element={user ? <CategoriesPage /> : <Navigate to="/login" />} />
         </Routes>
       </main>
+      <Toaster />
     </div>
   );
 }
