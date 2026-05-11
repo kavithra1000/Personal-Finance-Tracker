@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useAuthStore } from "../store/useAuthStore";
-import { User, Camera, Loader, Mail, Calendar, ShieldCheck, Edit3, X, Check, ArrowLeft } from "lucide-react";
+import { User, Camera, Loader, Mail, Calendar, ShieldCheck, Edit3, Check, ArrowLeft } from "lucide-react";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 

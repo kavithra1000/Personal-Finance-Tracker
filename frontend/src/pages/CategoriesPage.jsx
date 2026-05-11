@@ -11,6 +11,7 @@ import { useBudgetStore } from "../store/useBudgetStore";
 import CategoryForm from "../components/CategoryForm";
 import DeleteCategoryModal from "../components/DeleteCategoryModal";
 import { startOfMonth, endOfMonth } from "date-fns";
+import toast from "react-hot-toast";
 
 export default function CategoriesPage() {
   const { categories, isLoading, fetchCategories, addCategory, updateCategory, deleteCategory } = useCategoryStore();
@@ -105,8 +106,11 @@ export default function CategoriesPage() {
     setIsSaving(false);
     
     if (response.success) {
+      toast.success(`Category ${activeCategory ? "updated" : "created"} successfully`);
       setIsModalOpen(false);
       setActiveCategory(null);
+    } else {
+      toast.error(response.message || "An error occurred.");
     }
     return response;
   };
@@ -126,6 +130,7 @@ export default function CategoriesPage() {
     setIsDeleting(false);
     
     if (response.success) {
+      toast.success("Category deleted and transactions transferred");
       setCategoryToDelete(null);
       fetchTransactions(); 
       fetchBudgets({
@@ -133,7 +138,7 @@ export default function CategoriesPage() {
         periodYear: new Date().getFullYear()
       });
     } else {
-      alert(response.message || "Unable to delete category.");
+      toast.error(response.message || "Unable to delete category.");
     }
   };
 
