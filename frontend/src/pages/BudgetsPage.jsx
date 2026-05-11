@@ -9,6 +9,7 @@ import { useBudgetStore } from "../store/useBudgetStore";
 import { useCategoryStore } from "../store/useCategoryStore";
 import BudgetForm from "../components/BudgetForm";
 import DeleteBudgetModal from "../components/DeleteBudgetModal";
+import toast from "react-hot-toast";
 
 const monthNames = [
   "January", "February", "March", "April", "May", "June",
@@ -93,11 +94,12 @@ export default function BudgetsPage() {
   const handleSaveBudget = async (data) => {
     const response = activeBudget ? await updateBudget(activeBudget._id, data) : await addBudget(data);
     if (response.success) {
+      toast.success(`Budget ${activeBudget ? "updated" : "created"} successfully`);
       setIsModalOpen(false);
       setActiveBudget(null);
       fetchBudgets({ periodMonth: filterMonth, periodYear: filterYear });
     } else {
-      alert(response.message || "Unable to save budget.");
+      toast.error(response.message || "Unable to save budget.");
     }
   };
 
@@ -114,9 +116,10 @@ export default function BudgetsPage() {
     if (budgetToDelete) {
       const response = await deleteBudget(budgetToDelete._id);
       if (response.success) {
+        toast.success("Budget removed successfully");
         setBudgetToDelete(null);
       } else {
-        alert(response.message || "Unable to delete budget.");
+        toast.error(response.message || "Unable to delete budget.");
       }
     }
   };
@@ -310,7 +313,7 @@ export default function BudgetsPage() {
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-all sm:translate-x-2 sm:group-hover:translate-x-0 shrink-0">
+                  <div className="flex items-center gap-1.5 sm:opacity-0 sm:group-hover:opacity-100 transition-all sm:translate-x-2 sm:group-hover:translate-x-0 shrink-0">
                     <button
                       onClick={() => handleEdit(budget)}
                       className="p-2 text-text-muted hover:text-primary hover:bg-primary/5 rounded-xl transition-all"

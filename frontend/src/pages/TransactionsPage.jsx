@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTransactionStore } from "../store/useTransactionStore";
 import { useCategoryStore } from "../store/useCategoryStore";
 import { startOfDay } from "date-fns";
+import toast from "react-hot-toast";
 
 // Components
 import TransactionForm from "../components/TransactionForm";
@@ -41,8 +42,13 @@ export default function TransactionsPage() {
 
   const confirmDelete = async () => {
     if (transactionToDelete) {
-      await deleteTransaction(transactionToDelete._id);
-      setTransactionToDelete(null);
+      const result = await deleteTransaction(transactionToDelete._id);
+      if (result.success) {
+        toast.success("Transaction deleted successfully");
+        setTransactionToDelete(null);
+      } else {
+        toast.error(result.message || "Failed to delete transaction");
+      }
     }
   };
 
@@ -57,10 +63,18 @@ export default function TransactionsPage() {
   };
 
   const handleSave = async (transactionData, id) => {
+    let result;
     if (id) {
-      return await updateTransaction(id, transactionData);
+      result = await updateTransaction(id, transactionData);
+    } else {
+      result = await addTransaction(transactionData);
     }
-    return await addTransaction(transactionData);
+
+    if (result.success) {
+      toast.success(`Transaction ${id ? "updated" : "created"} successfully`);
+      handleClose();
+    }
+    return result;
   };
 
   const filteredTransactions = useMemo(() => {
