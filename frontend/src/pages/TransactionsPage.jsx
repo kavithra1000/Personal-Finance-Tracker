@@ -333,7 +333,7 @@ export default function TransactionsPage() {
       {showAddModal && (
         <TransactionForm
           transaction={selectedTransaction}
-          onClose={handleClose}
+          onCancel={handleClose}
           onSave={handleSave}
           isSaving={isUpdating}
         />

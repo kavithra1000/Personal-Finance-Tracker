@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useCategoryStore } from "../store/useCategoryStore";
 import { X, Loader, Plus, Tag, DollarSign, Calendar, ChevronDown } from "lucide-react";
+import toast from "react-hot-toast";
 
 const months = [
   "January", "February", "March", "April", "May", "June",
@@ -17,7 +18,6 @@ export default function BudgetForm({ budget, categories, onSave, onCancel, isSav
     periodYear: new Date().getFullYear(),
   });
 
-  const [message, setMessage] = useState({ type: "", text: "" });
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newCategoryColor, setNewCategoryColor] = useState("#3b82f6");
@@ -36,12 +36,11 @@ export default function BudgetForm({ budget, categories, onSave, onCancel, isSav
 
   const handleCreateCategory = async () => {
     if (!newCategoryName.trim()) {
-      setMessage({ type: "error", text: "Category name is required" });
+      toast.error("Category name is required");
       return;
     }
 
     setIsAddingCategory(true);
-    setMessage({ type: "", text: "" });
 
     const res = await addCategory({
       name: newCategoryName,
@@ -55,22 +54,22 @@ export default function BudgetForm({ budget, categories, onSave, onCancel, isSav
       setFormData({ ...formData, category: res.category._id });
       setIsCreatingCategory(false);
       setNewCategoryName("");
+      toast.success("Category created!");
     } else {
-      setMessage({ type: "error", text: res.message });
+      toast.error(res.message);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage({ type: "", text: "" });
 
     if (!formData.category || !formData.amount) {
-      setMessage({ type: "error", text: "Category and amount are required." });
+      toast.error("Category and amount are required.");
       return;
     }
 
     if (Number(formData.amount) <= 0) {
-      setMessage({ type: "error", text: "Budget amount must be greater than zero." });
+      toast.error("Budget amount must be greater than zero.");
       return;
     }
 
@@ -105,17 +104,6 @@ export default function BudgetForm({ budget, categories, onSave, onCancel, isSav
 
         {/* Body */}
         <div className="px-8 py-4 overflow-y-auto max-h-[70vh] custom-scrollbar">
-          {message.text && (
-            <div className={`mb-6 p-4 rounded-2xl text-sm flex items-center gap-3 ${
-              message.type === "error" 
-                ? "bg-rose-50 text-rose-600 border border-rose-100" 
-                : "bg-emerald-50 text-emerald-600 border border-emerald-100"
-            }`}>
-              <div className={`h-2 w-2 rounded-full ${message.type === "error" ? "bg-rose-500" : "bg-emerald-500"}`} />
-              {message.text}
-            </div>
-          )}
-
           <form id="budget-form" onSubmit={handleSubmit} className="space-y-6">
             {/* Category Section */}
             <div className="space-y-2">

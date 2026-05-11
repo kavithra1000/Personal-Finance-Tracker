@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { X, Loader, Tag, Palette, TrendingUp, TrendingDown, DollarSign } from "lucide-react";
 import { useCategoryStore } from "../store/useCategoryStore";
+import toast from "react-hot-toast";
 
 export default function CategoryForm({ category = null, onSave, onCancel, isSaving }) {
   const [formData, setFormData] = useState({
@@ -9,7 +10,6 @@ export default function CategoryForm({ category = null, onSave, onCancel, isSavi
     color: "#3b82f6",
     initialBudget: "",
   });
-  const [message, setMessage] = useState("");
   const { checkCategoryExists } = useCategoryStore();
 
   const handleBlur = async () => {
@@ -17,9 +17,7 @@ export default function CategoryForm({ category = null, onSave, onCancel, isSavi
     
     const result = await checkCategoryExists(formData.name.trim(), formData.type);
     if (result.exists && result.categoryId !== category?._id) {
-      setMessage(`Category '${formData.name}' already exists as an ${formData.type}.`);
-    } else if (message.includes("already exists")) {
-      setMessage("");
+      toast.error(`Category '${formData.name}' already exists as an ${formData.type}.`);
     }
   };
 
@@ -34,12 +32,11 @@ export default function CategoryForm({ category = null, onSave, onCancel, isSavi
     }
   }, [category]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage("");
 
     if (!formData.name.trim()) {
-      setMessage("Category name is required.");
+      toast.error("Category name is required.");
       return;
     }
 
@@ -53,21 +50,15 @@ export default function CategoryForm({ category = null, onSave, onCancel, isSavi
 
     if (needsBudget) {
       if (!formData.initialBudget) {
-        setMessage("Initial budget is required for expense categories.");
+        toast.error("Initial budget is required for expense categories.");
         return;
       }
       data.initialBudget = Number(formData.initialBudget);
     }
 
-    const result = onSave(data);
-    
-    // If onSave returns a promise (which it does in CategoriesPage), handle the result
-    if (result instanceof Promise) {
-      result.then(res => {
-        if (!res?.success) {
-          setMessage(res?.message || "An error occurred while saving.");
-        }
-      });
+    const result = await onSave(data);
+    if (!result?.success) {
+      toast.error(result?.message || "An error occurred while saving.");
     }
   };
 
@@ -92,13 +83,6 @@ export default function CategoryForm({ category = null, onSave, onCancel, isSavi
 
         {/* Body */}
         <div className="px-8 py-4 overflow-y-auto max-h-[70vh] custom-scrollbar">
-          {message && (
-            <div className="mb-6 p-4 rounded-2xl text-sm bg-rose-50 text-rose-600 border border-rose-100 flex items-center gap-3">
-              <div className="h-2 w-2 rounded-full bg-rose-500" />
-              {message}
-            </div>
-          )}
-
           <form id="category-form" onSubmit={handleSubmit} className="space-y-6">
             {/* Name Input */}
             <div className="space-y-2">

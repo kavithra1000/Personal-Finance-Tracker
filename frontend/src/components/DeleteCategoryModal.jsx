@@ -4,6 +4,7 @@ import {
   Palette, DollarSign, TrendingUp, TrendingDown, Layers
 } from "lucide-react";
 import { useCategoryStore } from "../store/useCategoryStore";
+import toast from "react-hot-toast";
 
 export default function DeleteCategoryModal({ category, transactionCount, onConfirm, onCancel, isDeleting }) {
   const { categories, addCategory } = useCategoryStore();
@@ -17,14 +18,12 @@ export default function DeleteCategoryModal({ category, transactionCount, onConf
     initialBudget: ""
   });
   const [isProcessing, setIsProcessing] = useState(false);
-  const [error, setError] = useState("");
 
   const availableCategories = useMemo(() => {
     return categories.filter(c => c.type === category.type && c._id !== category._id);
   }, [categories, category]);
 
   const handleConfirm = async () => {
-    setError("");
     setIsProcessing(true);
 
     try {
@@ -32,13 +31,13 @@ export default function DeleteCategoryModal({ category, transactionCount, onConf
 
       if (mode === "create") {
         if (!newCat.name.trim()) {
-          setError("Please enter a name for the new category.");
+          toast.error("Please enter a name for the new category.");
           setIsProcessing(false);
           return;
         }
 
         if (category.type === "expense" && !newCat.initialBudget) {
-          setError("A monthly budget is required for new expense categories.");
+          toast.error("A monthly budget is required for new expense categories.");
           setIsProcessing(false);
           return;
         }
@@ -53,21 +52,21 @@ export default function DeleteCategoryModal({ category, transactionCount, onConf
         if (response.success) {
           targetId = response.category._id;
         } else {
-          setError(response.message || "Failed to create new category.");
+          toast.error(response.message || "Failed to create new category.");
           setIsProcessing(false);
           return;
         }
       }
 
       if (!targetId) {
-        setError("Please select or create a target category.");
+        toast.error("Please select or create a target category.");
         setIsProcessing(false);
         return;
       }
 
       onConfirm(targetId);
     } catch (err) {
-      setError("An unexpected error occurred.");
+      toast.error("An unexpected error occurred.");
       setIsProcessing(false);
     }
   };
@@ -99,13 +98,6 @@ export default function DeleteCategoryModal({ category, transactionCount, onConf
           <div className="mb-6 p-4 rounded-2xl bg-rose-50/50 border border-rose-100/50 text-sm text-rose-900 leading-relaxed">
             Move transactions from <span className="font-bold underline">"{category.name}"</span> to another <span className="font-bold">{category.type}</span> category.
           </div>
-
-          {error && (
-            <div className="mb-6 p-4 rounded-2xl bg-rose-50 text-rose-600 text-xs font-bold border border-rose-100 flex items-center gap-3 animate-in shake-in duration-200">
-              <div className="h-2 w-2 rounded-full bg-rose-500" />
-              {error}
-            </div>
-          )}
 
           <div className="space-y-6">
             {/* Mode Tabs */}

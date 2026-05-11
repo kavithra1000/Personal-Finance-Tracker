@@ -2,37 +2,36 @@ import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { Lock, Loader } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [message, setMessage] = useState({ type: "", text: "" });
   const { token } = useParams();
   const navigate = useNavigate();
   const { resetPassword, isResettingPassword } = useAuthStore();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage({ type: "", text: "" });
     
     if (password !== confirmPassword) {
-      setMessage({ type: "error", text: "Passwords do not match" });
+      toast.error("Passwords do not match");
       return;
     }
 
     if (password.length < 6) {
-      setMessage({ type: "error", text: "Password must be at least 6 characters" });
+      toast.error("Password must be at least 6 characters");
       return;
     }
 
     const res = await resetPassword(token, password);
     if (res.success) {
-      setMessage({ type: "success", text: "Password reset successful! Redirecting to login..." });
+      toast.success("Password reset successful! Redirecting...");
       setTimeout(() => {
         navigate("/login");
       }, 3000);
     } else {
-      setMessage({ type: "error", text: res.message });
+      toast.error(res.message);
     }
   };
 
@@ -43,12 +42,6 @@ export default function ResetPasswordPage() {
           <h1 className="text-3xl font-bold text-text-main mb-2">Set New Password</h1>
           <p className="text-text-muted">Enter your new secure password below</p>
         </div>
-
-        {message.text && (
-          <div className={`mb-6 p-4 rounded-lg border text-sm ${message.type === "error" ? "bg-red-500/10 border-red-500/50 text-red-500" : "bg-green-500/10 border-green-500/50 text-green-500"}`}>
-            {message.text}
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
