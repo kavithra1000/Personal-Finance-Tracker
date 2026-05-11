@@ -50,7 +50,7 @@ export default function CategoryForm({ category = null, onSave, onCancel, isSavi
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-[2px] animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/40 backdrop-blur-[2px] animate-in fade-in duration-200">
       <div className="bg-surface w-full max-w-md rounded-[2.5rem] shadow-2xl border border-slate-200 overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
         {/* Header */}
         <div className="p-8 pb-4 flex justify-between items-center">
@@ -135,11 +135,11 @@ export default function CategoryForm({ category = null, onSave, onCancel, isSavi
             </div>
 
             {/* Conditional Budget Field */}
-            {formData.type === "expense" && (!category || category.type === "income") && (
+            {formData.type === "expense" && (!category?._id || category.type === "income") && (
                <div className="space-y-2 animate-in slide-in-from-top-2 duration-300">
                   <div className="flex justify-between items-center px-1">
                     <label className="text-xs font-bold uppercase tracking-wider text-text-muted">
-                       {category ? "Set Monthly Budget" : "Initial Monthly Budget"}
+                       {category?._id ? "Set Monthly Budget" : "Initial Monthly Budget"}
                     </label>
                     <span className="text-[10px] font-bold text-rose-500 bg-rose-50 px-2 py-0.5 rounded-full uppercase border border-rose-100">Required *</span>
                   </div>
@@ -157,7 +157,7 @@ export default function CategoryForm({ category = null, onSave, onCancel, isSavi
                     />
                   </div>
                   <p className="text-[10px] text-text-muted px-1">
-                    {category 
+                    {category?._id 
                       ? "Converting to expense requires setting a budget for the current month." 
                       : "Setting this creates your budget for the current month instantly."}
                   </p>

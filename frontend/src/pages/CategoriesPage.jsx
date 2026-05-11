@@ -9,6 +9,7 @@ import { useCategoryStore } from "../store/useCategoryStore";
 import { useTransactionStore } from "../store/useTransactionStore";
 import { useBudgetStore } from "../store/useBudgetStore";
 import CategoryForm from "../components/CategoryForm";
+import DeleteCategoryModal from "../components/DeleteCategoryModal";
 import { startOfMonth, endOfMonth } from "date-fns";
 
 export default function CategoriesPage() {
@@ -19,6 +20,10 @@ export default function CategoriesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Deletion States
+  const [categoryToDelete, setCategoryToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Filters and Sorting
   const [searchQuery, setSearchQuery] = useState("");
@@ -96,11 +101,14 @@ export default function CategoriesPage() {
 
   const handleSaveCategory = async (data) => {
     setIsSaving(true);
-    const response = activeCategory ? await updateCategory(activeCategory._id, data) : await addCategory(data);
+    const response = activeCategory?._id ? await updateCategory(activeCategory._id, data) : await addCategory(data);
     setIsSaving(false);
+    
     if (response.success) {
       setIsModalOpen(false);
       setActiveCategory(null);
+      // If we were in the middle of a delete flow, the new category will now be in the store list
+      // for selection in the Delete modal.
     } else {
       alert(response.message || "Unable to save category.");
     }
@@ -111,12 +119,24 @@ export default function CategoriesPage() {
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Delete this category? Existing transactions will keep their category reference.")) {
-      const response = await deleteCategory(id);
-      if (!response.success) {
-        alert(response.message || "Unable to delete category.");
-      }
+  const handleDeleteClick = (category) => {
+    setCategoryToDelete(category);
+  };
+
+  const handleConfirmDelete = async (transferToId) => {
+    setIsDeleting(true);
+    const response = await deleteCategory(categoryToDelete._id, transferToId);
+    setIsDeleting(false);
+    
+    if (response.success) {
+      setCategoryToDelete(null);
+      fetchTransactions(); 
+      fetchBudgets({
+        periodMonth: new Date().getMonth() + 1,
+        periodYear: new Date().getFullYear()
+      });
+    } else {
+      alert(response.message || "Unable to delete category.");
     }
   };
 
@@ -293,7 +313,7 @@ export default function CategoriesPage() {
                           <Edit3 className="w-5 h-5" />
                         </button>
                         <button
-                          onClick={() => handleDelete(category._id)}
+                          onClick={() => handleDeleteClick(category)}
                           className="p-2.5 text-text-muted hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
                           title="Delete Category"
                         >
@@ -318,6 +338,16 @@ export default function CategoriesPage() {
             setIsModalOpen(false);
           }}
           isSaving={isSaving}
+        />
+      )}
+
+      {categoryToDelete && (
+        <DeleteCategoryModal
+          category={categoryToDelete}
+          transactionCount={categoryInsights[categoryToDelete._id]?.totalCount || 0}
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setCategoryToDelete(null)}
+          isDeleting={isDeleting}
         />
       )}
     </div>
