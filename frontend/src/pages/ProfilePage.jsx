@@ -1,20 +1,20 @@
 import { useState, useRef } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { User, Camera, Loader } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function ProfilePage() {
   const { user, updateProfile, isUpdatingProfile } = useAuthStore();
   const [fullName, setFullName] = useState(user?.fullName || "");
   const [profilePic, setProfilePic] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(user?.profilePic || "");
-  const [message, setMessage] = useState({ type: "", text: "" });
   const fileInputRef = useRef(null);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        setMessage({ type: "error", text: "Image must be less than 5MB" });
+        toast.error("Image must be less than 5MB");
         return;
       }
       
@@ -29,23 +29,22 @@ export default function ProfilePage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage({ type: "", text: "" });
     
     const data = {};
     if (fullName !== user.fullName) data.fullName = fullName;
     if (profilePic) data.profilePic = profilePic;
     
     if (Object.keys(data).length === 0) {
-      setMessage({ type: "error", text: "No changes to save" });
+      toast.error("No changes to save");
       return;
     }
 
     const res = await updateProfile(data);
     if (res.success) {
-      setMessage({ type: "success", text: "Profile updated successfully!" });
+      toast.success("Profile updated successfully!");
       setProfilePic(null);
     } else {
-      setMessage({ type: "error", text: res.message });
+      toast.error(res.message);
     }
   };
 
@@ -53,12 +52,6 @@ export default function ProfilePage() {
     <div className="container mx-auto p-4 py-12 max-w-2xl bg-background">
       <div className="bg-surface rounded-2xl p-8 border border-slate-200 shadow-xl">
         <h1 className="text-3xl font-bold text-text-main mb-8">Profile Settings</h1>
-
-        {message.text && (
-          <div className={`mb-6 p-4 rounded-lg border ${message.type === "error" ? "bg-red-500/10 border-red-500/50 text-red-500" : "bg-green-500/10 border-green-500/50 text-green-500"}`}>
-            {message.text}
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="flex flex-col items-center">

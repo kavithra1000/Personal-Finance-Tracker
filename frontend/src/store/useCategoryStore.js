@@ -86,4 +86,14 @@ export const useCategoryStore = create((set) => ({
       return { success: false, message: error.response?.data?.message || "Failed to delete category" };
     }
   },
+
+  checkCategoryExists: async (name, type) => {
+    try {
+      const res = await axiosInstance.get(`/category/check-exists?name=${name}&type=${type}`);
+      return res.data; // { exists: boolean, categoryId: string }
+    } catch (error) {
+      console.error("Check exists failed:", error);
+      return { exists: false };
+    }
+  },
 }));

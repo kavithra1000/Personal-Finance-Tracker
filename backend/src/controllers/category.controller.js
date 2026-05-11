@@ -27,6 +27,11 @@ export const addCategory = async (req, res) => {
             category,
         });
     } catch (error) {
+        if (error.code === 11000) {
+            return res.status(400).json({
+                message: `Category '${req.body.name}' already exists as an ${req.body.type}.`,
+            });
+        }
         console.log("Add Category Error:", error.message);
 
         res.status(500).json({
@@ -93,6 +98,11 @@ export const updateCategory = async (req, res) => {
             category: updatedCategory,
         });
     } catch (error) {
+        if (error.code === 11000) {
+            return res.status(400).json({
+                message: `A category with this name already exists for the selected type.`,
+            });
+        }
         console.log("Update Category Error:", error.message);
 
         res.status(500).json({
@@ -185,6 +195,31 @@ export const getCategories = async (req, res) => {
       message: "Internal server error",
     });
   }
+};
+
+export const checkCategoryExists = async (req, res) => {
+    try {
+        const { name, type } = req.query;
+        const userId = req.user._id;
+
+        if (!name || !type) {
+            return res.status(400).json({ message: "Name and type are required" });
+        }
+
+        const category = await Category.findOne({
+            user: userId,
+            name: name.toLowerCase(),
+            type: type
+        });
+
+        res.status(200).json({
+            exists: !!category,
+            categoryId: category?._id
+        });
+    } catch (error) {
+        console.log("Check Category Error:", error.message);
+        res.status(500).json({ message: "Internal server error" });
+    }
 };
 
 export const getCategoryById = async (req, res) => {

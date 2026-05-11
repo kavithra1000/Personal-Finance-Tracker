@@ -2,18 +2,19 @@ import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { Link } from "react-router-dom";
 import { User, Mail, Lock, Loader } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({ fullName: "", email: "", password: "" });
-  const [error, setError] = useState("");
   const { signup, isSigningUp } = useAuthStore();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
     const res = await signup(formData);
     if (!res.success) {
-      setError(res.message);
+      toast.error(res.message);
+    } else {
+      toast.success("Account created! Welcome.");
     }
   };
 
@@ -24,12 +25,6 @@ export default function SignupPage() {
           <h1 className="text-3xl font-bold text-text-main mb-2">Create Account</h1>
           <p className="text-text-muted">Start tracking your finances today</p>
         </div>
-
-        {error && (
-          <div className="mb-6 p-3 rounded-lg bg-red-500/10 border border-red-500/50 text-red-500 text-sm text-center">
-            {error}
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">

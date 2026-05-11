@@ -2,23 +2,25 @@ import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { Link } from "react-router-dom";
 import { Mail, Loader, ArrowLeft } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState({ type: "", text: "", token: "" });
+  const [resetToken, setResetToken] = useState(""); // For dev convenience
   const [isLoading, setIsLoading] = useState(false);
   const { forgotPassword } = useAuthStore();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setMessage({ type: "", text: "", token: "" });
+    setResetToken("");
     
     const res = await forgotPassword(email);
     if (res.success) {
-      setMessage({ type: "success", text: res.message, token: res.resetToken });
+      toast.success(res.message);
+      if (res.resetToken) setResetToken(res.resetToken);
     } else {
-      setMessage({ type: "error", text: res.message });
+      toast.error(res.message);
     }
     setIsLoading(false);
   };
@@ -35,20 +37,6 @@ export default function ForgotPasswordPage() {
           <p className="text-text-muted">Enter your email to receive a reset link</p>
         </div>
 
-        {message.text && (
-          <div className={`mb-6 p-4 rounded-lg border text-sm ${message.type === "error" ? "bg-red-500/10 border-red-500/50 text-red-500" : "bg-green-500/10 border-green-500/50 text-green-500"}`}>
-            {message.text}
-            {message.token && (
-              <div className="mt-4 p-3 bg-background rounded border border-surface text-xs break-all text-text-muted">
-                <strong>Dev Note (Token):</strong> <br/>
-                <Link to={`/reset-password/${message.token}`} className="text-primary hover:underline mt-2 inline-block">
-                  Click here to proceed to reset password
-                </Link>
-              </div>
-            )}
-          </div>
-        )}
-
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <label className="text-sm font-medium text-text-muted">Email</label>
@@ -64,6 +52,15 @@ export default function ForgotPasswordPage() {
               />
             </div>
           </div>
+
+          {resetToken && (
+            <div className="p-4 rounded-lg bg-primary/5 border border-primary/20 animate-in slide-in-from-bottom-2 duration-200">
+               <p className="text-xs font-bold text-primary uppercase tracking-widest mb-2">Developer Link (Token)</p>
+               <Link to={`/reset-password/${resetToken}`} className="text-sm text-text-main hover:underline break-all block">
+                  Click here to proceed to reset password
+               </Link>
+            </div>
+          )}
 
           <button 
             type="submit" 

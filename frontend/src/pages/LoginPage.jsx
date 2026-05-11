@@ -2,18 +2,19 @@ import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { Link } from "react-router-dom";
 import { Mail, Lock, Loader } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
   const { login, isLoggingIn } = useAuthStore();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
     const res = await login(formData);
     if (!res.success) {
-      setError(res.message);
+      toast.error(res.message);
+    } else {
+      toast.success("Welcome back!");
     }
   };
 
@@ -24,12 +25,6 @@ export default function LoginPage() {
           <h1 className="text-3xl font-bold text-text-main mb-2">Welcome Back</h1>
           <p className="text-text-muted">Sign in to access your finance dashboard</p>
         </div>
-
-        {error && (
-          <div className="mb-6 p-3 rounded-lg bg-red-500/10 border border-red-500/50 text-red-500 text-sm text-center">
-            {error}
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">

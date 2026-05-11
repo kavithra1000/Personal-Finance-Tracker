@@ -5,7 +5,8 @@ import {
   updateCategory,
   deleteCategory,
   getCategories,
-  getCategoryById
+  getCategoryById,
+  checkCategoryExists
 } from "../controllers/category.controller.js";
 
 import { protectedRoute } from "../middleware/auth.middleware.js";
@@ -23,6 +24,9 @@ router.put("/:id", protectedRoute, updateCategory);
 // 1. Prevent deletion and ask user to reassign transactions to another category first
 // 2. Allow deletion but set category of those transactions to null or "Uncategorized"
 router.delete("/:id", protectedRoute, deleteCategory);
+
+// Check if category exists
+router.get("/check-exists", protectedRoute, checkCategoryExists);
 
 // Get all categories for the authenticated user
 router.get("/", protectedRoute, getCategories);
