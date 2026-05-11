@@ -8,6 +8,7 @@ import {
 import { useBudgetStore } from "../store/useBudgetStore";
 import { useCategoryStore } from "../store/useCategoryStore";
 import BudgetForm from "../components/BudgetForm";
+import DeleteBudgetModal from "../components/DeleteBudgetModal";
 
 const monthNames = [
   "January", "February", "March", "April", "May", "June",
@@ -21,6 +22,7 @@ export default function BudgetsPage() {
   const [filterYear, setFilterYear] = useState(new Date().getFullYear());
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeBudget, setActiveBudget] = useState(null);
+  const [budgetToDelete, setBudgetToDelete] = useState(null);
 
   // Search and Advanced Filters
   const [searchQuery, setSearchQuery] = useState("");
@@ -104,10 +106,16 @@ export default function BudgetsPage() {
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Delete this budget?")) {
-      const response = await deleteBudget(id);
-      if (!response.success) {
+  const handleDelete = (budget) => {
+    setBudgetToDelete(budget);
+  };
+
+  const confirmDelete = async () => {
+    if (budgetToDelete) {
+      const response = await deleteBudget(budgetToDelete._id);
+      if (response.success) {
+        setBudgetToDelete(null);
+      } else {
         alert(response.message || "Unable to delete budget.");
       }
     }
@@ -310,7 +318,7 @@ export default function BudgetsPage() {
                       <Edit3 className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => handleDelete(budget._id)}
+                      onClick={() => handleDelete(budget)}
                       className="p-2 text-text-muted hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -367,6 +375,15 @@ export default function BudgetsPage() {
             setIsModalOpen(false);
           }}
           isSaving={isSaving}
+        />
+      )}
+
+      {budgetToDelete && (
+        <DeleteBudgetModal
+          budget={budgetToDelete}
+          onConfirm={confirmDelete}
+          onCancel={() => setBudgetToDelete(null)}
+          isDeleting={isDeleting}
         />
       )}
     </div>
