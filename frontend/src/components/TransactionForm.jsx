@@ -55,6 +55,7 @@ export default function TransactionForm({ transaction = null, onClose, onSave, i
       name: newCategoryName,
       type: formData.type,
       color: newCategoryColor,
+      initialBudget: formData.initialBudget,
     });
 
     setIsAddingCategory(false);
@@ -253,6 +254,23 @@ export default function TransactionForm({ transaction = null, onClose, onSave, i
                     placeholder="Category Name (e.g. Health)"
                     autoFocus
                   />
+                  {formData.type === "expense" && (
+                    <div className="space-y-1.5">
+                       <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 ml-1">Initial Monthly Budget (Optional)</label>
+                       <div className="relative group">
+                          <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={formData.initialBudget || ""}
+                            onChange={(e) => setFormData({ ...formData, initialBudget: e.target.value })}
+                            className="w-full pl-9 pr-4 py-2 rounded-xl bg-white border border-slate-200 text-sm focus:border-primary outline-none shadow-sm font-medium"
+                            placeholder="0.00"
+                          />
+                       </div>
+                    </div>
+                  )}
                   <div className="flex gap-3 items-center">
                     <div className="relative group">
                       <input

@@ -18,9 +18,28 @@ export const useCategoryStore = create((set) => ({
 
   addCategory: async (categoryData) => {
     try {
-      const res = await axiosInstance.post("/category", categoryData);
-      set((state) => ({ categories: [res.data.category, ...state.categories] }));
-      return { success: true, category: res.data.category };
+      const { initialBudget, ...data } = categoryData;
+      const res = await axiosInstance.post("/category", data);
+      const newCategory = res.data.category;
+      
+      set((state) => ({ categories: [newCategory, ...state.categories] }));
+
+      // If initialBudget is provided and it's an expense category, create a budget
+      if (initialBudget && data.type === "expense") {
+        try {
+          await axiosInstance.post("/budgets", {
+            category: newCategory._id,
+            amount: Number(initialBudget),
+            periodMonth: new Date().getMonth() + 1,
+            periodYear: new Date().getFullYear(),
+          });
+        } catch (budgetError) {
+          console.error("Failed to create initial budget:", budgetError);
+          // We don't fail the whole operation if budget creation fails
+        }
+      }
+
+      return { success: true, category: newCategory };
     } catch (error) {
       return { success: false, message: error.response?.data?.message || "Failed to add category" };
     }
