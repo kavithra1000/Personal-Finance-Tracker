@@ -39,7 +39,7 @@ export default function DashboardPage() {
   const isLoading = isTxLoading || isInsightLoading;
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="container mx-auto px-4 py-6 md:py-10 max-w-7xl">
       <DashboardHeader 
         month={filterMonth} 
         year={filterYear} 
@@ -48,27 +48,40 @@ export default function DashboardPage() {
         months={months}
       />
 
-      {!isLoading && <BudgetAlerts data={budgetVsActual} />}
+      <div className="space-y-6 md:space-y-8">
+        {!isLoading && budgetVsActual.some(b => b.isExceeded) && (
+          <BudgetAlerts data={budgetVsActual} />
+        )}
 
-      <SummaryStats summary={summary} />
+        <SummaryStats summary={summary} />
 
-      {isLoading ? (
-        <div className="flex min-h-[44vh] items-center justify-center rounded-3xl border border-slate-200 bg-surface p-8 shadow-sm">
-          <Loader className="h-10 w-10 animate-spin text-primary" />
-        </div>
-      ) : (
-        <div className="space-y-8 mt-8">
-          <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
-            <CashflowChart data={monthlyTrend} />
-            <BudgetProgress data={budgetVsActual} />
+        {isLoading ? (
+          <div className="flex min-h-[400px] items-center justify-center rounded-3xl border border-slate-200 bg-surface p-8 shadow-sm">
+            <div className="flex flex-col items-center gap-4">
+              <Loader className="h-10 w-10 animate-spin text-primary" />
+              <p className="text-sm font-bold text-text-muted uppercase tracking-widest">Calculating Insights...</p>
+            </div>
           </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+            {/* Main Charts Row */}
+            <div className="lg:col-span-1">
+              <CashflowChart data={monthlyTrend} />
+            </div>
+            <div className="lg:col-span-1">
+              <BudgetProgress data={budgetVsActual} />
+            </div>
 
-          <div className="grid gap-6 xl:grid-cols-[1fr_1fr]">
-            <ExpenseDistribution data={expenseDistribution} />
-            <RecentTransactions transactions={transactions} />
+            {/* Distribution and Activity Row */}
+            <div className="lg:col-span-1">
+              <ExpenseDistribution data={expenseDistribution} />
+            </div>
+            <div className="lg:col-span-1">
+              <RecentTransactions transactions={transactions} />
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

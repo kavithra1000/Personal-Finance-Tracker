@@ -6,43 +6,60 @@ export default function BudgetProgress({ data }) {
     budget: Number(b.budgetAmount),
     spent: Number(b.actualSpent),
     color: b.color || "#3b82f6",
-  }));
+  })).slice(0, 6); // Keep it clean
 
   return (
-    <section className="rounded-3xl border border-slate-200 bg-surface p-6 shadow-sm">
-      <h2 className="text-xl font-semibold text-text-main">Budget progress</h2>
-      <p className="text-sm text-text-muted mt-1 mb-6">Budget vs actual spend.</p>
+    <section className="rounded-3xl border border-slate-200 bg-surface p-5 md:p-6 shadow-sm flex flex-col h-full">
+      <h2 className="text-lg md:text-xl font-bold text-text-main leading-tight">Budget Progress</h2>
+      <p className="text-xs text-text-muted mt-0.5 mb-6">Tracking your monthly limits.</p>
       
-      <div className="h-80">
+      <div className="h-64 md:h-80 w-full flex-1">
         {chartData.length === 0 ? (
-          <div className="flex h-full items-center justify-center rounded-3xl border border-dashed border-slate-300 text-sm text-text-muted">
-            No budgets set for this period.
+          <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-slate-200 text-xs text-text-muted">
+            No active budgets.
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart 
               data={chartData} 
               layout="vertical" 
-              margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
+              margin={{ top: 0, right: 30, left: 10, bottom: 0 }}
             >
-              <CartesianGrid strokeDasharray="3 3" opacity={0.3} horizontal={false} />
+              <CartesianGrid strokeDasharray="3 3" opacity={0.1} horizontal={false} />
               <XAxis type="number" hide />
               <YAxis 
                 dataKey="name" 
                 type="category" 
-                tick={{ fontSize: 12, fill: "#64748b" }} 
+                tick={{ fontSize: 10, fontWeight: 700, fill: "#64748b" }} 
                 axisLine={false} 
                 tickLine={false}
-                width={80}
+                width={70}
               />
               <Tooltip 
-                cursor={{ fill: "#f1f5f9" }}
-                contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }}
+                cursor={{ fill: "#f8fafc" }}
+                contentStyle={{ 
+                  borderRadius: "16px", 
+                  border: "none", 
+                  boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
+                  fontSize: "12px",
+                  fontWeight: "bold",
+                  padding: "12px"
+                }}
                 formatter={(val) => `$${Number(val).toLocaleString()}`} 
               />
-              <Legend verticalAlign="top" align="right" iconType="circle" wrapperStyle={{ paddingBottom: "20px" }} />
-              <Bar dataKey="budget" fill="#e2e8f0" radius={[0, 4, 4, 0]} name="Budget Limit" barSize={12} />
-              <Bar dataKey="spent" radius={[0, 4, 4, 0]} name="Actual Spent" barSize={12}>
+              <Legend 
+                verticalAlign="top" 
+                align="right" 
+                iconType="circle" 
+                wrapperStyle={{ 
+                  paddingBottom: "25px", 
+                  fontSize: "10px", 
+                  fontWeight: "800", 
+                  textTransform: "uppercase" 
+                }} 
+              />
+              <Bar dataKey="budget" fill="#f1f5f9" radius={[0, 4, 4, 0]} name="Limit" barSize={10} />
+              <Bar dataKey="spent" radius={[0, 4, 4, 0]} name="Spent" barSize={10}>
                 {chartData.map((entry, index) => (
                   <Cell 
                     key={`cell-${index}`} 

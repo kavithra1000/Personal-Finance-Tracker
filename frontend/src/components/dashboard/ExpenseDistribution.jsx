@@ -10,14 +10,14 @@ export default function ExpenseDistribution({ data }) {
   }));
 
   return (
-    <section className="rounded-3xl border border-slate-200 bg-surface p-6 shadow-sm">
-      <h2 className="text-xl font-semibold text-text-main">Expense distribution</h2>
-      <p className="text-sm text-text-muted mt-1 mb-6">Where your money goes.</p>
+    <section className="rounded-3xl border border-slate-200 bg-surface p-5 md:p-6 shadow-sm flex flex-col h-full">
+      <h2 className="text-lg md:text-xl font-bold text-text-main leading-tight">Expense Mix</h2>
+      <p className="text-xs text-text-muted mt-0.5 mb-6">Spending by category.</p>
       
-      <div className="h-80">
+      <div className="h-64 md:h-80 w-full flex-1">
         {chartData.length === 0 ? (
-          <div className="flex h-full items-center justify-center rounded-3xl border border-dashed border-slate-300 text-sm text-text-muted">
-            No expenses found for this period.
+          <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-slate-200 text-xs text-text-muted">
+            No expenses found.
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
@@ -26,9 +26,9 @@ export default function ExpenseDistribution({ data }) {
                 data={chartData}
                 dataKey="value"
                 nameKey="name"
-                innerRadius={70}
-                outerRadius={100}
-                paddingAngle={5}
+                innerRadius={window.innerWidth < 768 ? 50 : 70}
+                outerRadius={window.innerWidth < 768 ? 70 : 100}
+                paddingAngle={4}
                 stroke="none"
               >
                 {chartData.map((entry, index) => (
@@ -39,10 +39,27 @@ export default function ExpenseDistribution({ data }) {
                 ))}
               </Pie>
               <Tooltip 
-                contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }}
-                formatter={(val) => `$${Number(val).toLocaleString(undefined, { minimumFractionDigits: 2 })}`} 
+                contentStyle={{ 
+                  borderRadius: "16px", 
+                  border: "none", 
+                  boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
+                  fontSize: "12px",
+                  fontWeight: "bold",
+                  padding: "12px"
+                }}
+                formatter={(val) => `$${Number(val).toLocaleString(undefined, { minimumFractionDigits: 0 })}`} 
               />
-              <Legend verticalAlign="bottom" align="center" iconType="circle" />
+              <Legend 
+                verticalAlign="bottom" 
+                align="center" 
+                iconType="circle"
+                wrapperStyle={{ 
+                  paddingTop: "20px",
+                  fontSize: "10px",
+                  fontWeight: "700",
+                  textTransform: "uppercase"
+                }}
+              />
             </PieChart>
           </ResponsiveContainer>
         )}
