@@ -1,250 +1,79 @@
-import Category from "../models/category.model.js";
-import User from "../models/user.model.js";
-import Budget from "../models/budget.model.js";
-import Transaction from "../models/transaction.model.js";
+import * as categoryService from "../services/categoryService.js";
+
+const ERROR_MAP = {
+  MISSING_FIELDS:    { status: 400, message: "Name and type are required" },
+  NO_UPDATE_DATA:    { status: 400, message: "No fields provided to update" },
+  TRANSFER_REQUIRED: { status: 400, message: "A transfer category is required to move existing transactions." },
+  CATEGORY_NOT_FOUND:{ status: 404, message: "Category not found or not authorized" },
+  TARGET_NOT_FOUND:  { status: 404, message: "Target category not found or not authorized" },
+  TYPE_MISMATCH:     { status: 400, message: "Cannot transfer transactions between different category types" },
+};
+
+const handleError = (res, err, context = {}) => {
+  const known = ERROR_MAP[err.message];
+  if (known) return res.status(known.status).json({ message: known.message });
+
+  if (err.code === 11000) {
+    const msg = context.isUpdate
+      ? "A category with this name already exists for the selected type."
+      : `Category '${context.name}' already exists as an ${context.type}.`;
+    return res.status(400).json({ message: msg });
+  }
+
+  console.error(err);
+  return res.status(500).json({ message: "Internal server error" });
+};
 
 export const addCategory = async (req, res) => {
-    try {
-        const { name, type, color } = req.body;
-
-        if (!name || !type) {
-            return res.status(400).json({
-                message: "Name and type are required",
-            });
-        }
-
-        const userId = req.user._id;
-
-        const category = await Category.create({
-            user: userId,
-            name,
-            type,
-            color,
-        });
-
-        res.status(201).json({
-            message: "Category created successfully",
-            category,
-        });
-    } catch (error) {
-        if (error.code === 11000) {
-            return res.status(400).json({
-                message: `Category '${req.body.name}' already exists as an ${req.body.type}.`,
-            });
-        }
-        console.log("Add Category Error:", error.message);
-
-        res.status(500).json({
-            message: "Internal server error",
-        });
-    }
-};
-
-export const updateCategory = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { name, type, color } = req.body;
-
-        if (!id) {
-            return res.status(400).json({
-                message: "Category ID is required",
-            });
-        }
-
-        // Build dynamic update object
-        const updateData = {};
-
-        if (name) updateData.name = name;
-        if (type) updateData.type = type;
-        if (color) updateData.color = color;
-
-        // Prevent empty updates
-        if (Object.keys(updateData).length === 0) {
-            return res.status(400).json({
-                message: "No fields provided to update",
-            });
-        }
-
-        const updatedCategory = await Category.findOneAndUpdate(
-            {
-                _id: id,
-                user: req.user._id, // 🔐 ownership check
-            },
-            updateData,
-            {
-                new: true,
-                runValidators: true, // important for enum/type validation
-            }
-        );
-
-        if (!updatedCategory) {
-            return res.status(404).json({
-                message: "Category not found or not authorized",
-            });
-        }
-
-        // If the type was changed to "income", delete any associated budgets
-        if (type === "income") {
-            try {
-                await Budget.deleteMany({ category: id, user: req.user._id });
-            } catch (budgetError) {
-                console.log("Budget cleanup error:", budgetError.message);
-                // We still proceed as the category update was successful
-            }
-        }
-
-        res.status(200).json({
-            message: "Category updated successfully",
-            category: updatedCategory,
-        });
-    } catch (error) {
-        if (error.code === 11000) {
-            return res.status(400).json({
-                message: `A category with this name already exists for the selected type.`,
-            });
-        }
-        console.log("Update Category Error:", error.message);
-
-        res.status(500).json({
-            message: "Internal server error",
-        });
-    }
-};
-
-export const deleteCategory = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { transferToId } = req.body;
-
-        if (!transferToId) {
-            return res.status(400).json({
-                message: "A transfer category is required to move existing transactions.",
-            });
-        }
-
-        // 1. Verify the category being deleted exists and belongs to the user
-        const categoryToDelete = await Category.findOne({
-            _id: id,
-            user: req.user._id,
-        });
-
-        if (!categoryToDelete) {
-            return res.status(404).json({
-                message: "Category to delete not found or not authorized",
-            });
-        }
-
-        // 2. Verify the target category exists, belongs to the user, and matches the type
-        const targetCategory = await Category.findOne({
-            _id: transferToId,
-            user: req.user._id,
-        });
-
-        if (!targetCategory) {
-            return res.status(404).json({
-                message: "Target category not found or not authorized",
-            });
-        }
-
-        if (targetCategory.type !== categoryToDelete.type) {
-            return res.status(400).json({
-                message: `Cannot transfer transactions from ${categoryToDelete.type} to ${targetCategory.type}`,
-            });
-        }
-
-        // 3. Migrate all transactions
-        await Transaction.updateMany(
-            { category: id, user: req.user._id },
-            { category: transferToId }
-        );
-
-        // 4. Delete all budgets associated with the old category
-        await Budget.deleteMany({
-            category: id,
-            user: req.user._id,
-        });
-
-        // 5. Finally delete the category
-        await Category.findByIdAndDelete(id);
-
-        res.status(200).json({
-            message: "Category deleted and transactions reassigned successfully",
-        });
-    } catch (error) {
-        console.log("Delete Category Error:", error.message);
-        res.status(500).json({
-            message: "Internal server error",
-        });
-    }
+  try {
+    const category = await categoryService.addCategory(req.user._id, req.body);
+    return res.status(201).json({ message: "Category created successfully", category });
+  } catch (err) {
+    return handleError(res, err, { name: req.body.name, type: req.body.type });
+  }
 };
 
 export const getCategories = async (req, res) => {
   try {
-    const categories = await Category.find({
-      user: req.user._id,
-    }).sort({ createdAt: -1 });
-
-    res.status(200).json({
-      message: "Categories fetched successfully",
-      categories,
-    });
-  } catch (error) {
-    console.log("Get Categories Error:", error.message);
-
-    res.status(500).json({
-      message: "Internal server error",
-    });
+    const categories = await categoryService.getCategories(req.user._id);
+    return res.status(200).json({ message: "Categories fetched successfully", categories });
+  } catch (err) {
+    return handleError(res, err);
   }
-};
-
-export const checkCategoryExists = async (req, res) => {
-    try {
-        const { name, type } = req.query;
-        const userId = req.user._id;
-
-        if (!name || !type) {
-            return res.status(400).json({ message: "Name and type are required" });
-        }
-
-        const category = await Category.findOne({
-            user: userId,
-            name: name.toLowerCase(),
-            type: type
-        });
-
-        res.status(200).json({
-            exists: !!category,
-            categoryId: category?._id
-        });
-    } catch (error) {
-        console.log("Check Category Error:", error.message);
-        res.status(500).json({ message: "Internal server error" });
-    }
 };
 
 export const getCategoryById = async (req, res) => {
   try {
-    const { id } = req.params;
+    const category = await categoryService.getCategoryById(req.user._id, req.params.id);
+    return res.status(200).json({ category });
+  } catch (err) {
+    return handleError(res, err);
+  }
+};
 
-    const category = await Category.findOne({
-      _id: id,
-      user: req.user._id,
-    });
+export const checkCategoryExists = async (req, res) => {
+  try {
+    const result = await categoryService.checkCategoryExists(req.user._id, req.query);
+    return res.status(200).json(result);
+  } catch (err) {
+    return handleError(res, err);
+  }
+};
 
-    if (!category) {
-      return res.status(404).json({
-        message: "Category not found",
-      });
-    }
+export const updateCategory = async (req, res) => {
+  try {
+    const category = await categoryService.updateCategory(req.user._id, req.params.id, req.body);
+    return res.status(200).json({ message: "Category updated successfully", category });
+  } catch (err) {
+    return handleError(res, err, { isUpdate: true });
+  }
+};
 
-    res.status(200).json({
-      category,
-    });
-  } catch (error) {
-    console.log("Get Category Error:", error.message);
-
-    res.status(500).json({
-      message: "Internal server error",
-    });
+export const deleteCategory = async (req, res) => {
+  try {
+    await categoryService.deleteCategory(req.user._id, req.params.id, req.body.transferToId);
+    return res.status(200).json({ message: "Category deleted and transactions reassigned successfully" });
+  } catch (err) {
+    return handleError(res, err);
   }
 };
