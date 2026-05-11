@@ -36,7 +36,13 @@ export default function CategoryForm({ category = null, onSave, onCancel, isSavi
       color: formData.color,
     };
 
-    if (!category && formData.type === "expense" && formData.initialBudget) {
+    const needsBudget = formData.type === "expense" && (!category || category.type === "income");
+
+    if (needsBudget) {
+      if (!formData.initialBudget) {
+        setMessage("Initial budget is required for expense categories.");
+        return;
+      }
       data.initialBudget = Number(formData.initialBudget);
     }
 
@@ -129,25 +135,32 @@ export default function CategoryForm({ category = null, onSave, onCancel, isSavi
             </div>
 
             {/* Conditional Budget Field */}
-            {!category && formData.type === "expense" && (
+            {formData.type === "expense" && (!category || category.type === "income") && (
                <div className="space-y-2 animate-in slide-in-from-top-2 duration-300">
                   <div className="flex justify-between items-center px-1">
-                    <label className="text-xs font-bold uppercase tracking-wider text-text-muted">Initial Monthly Budget</label>
-                    <span className="text-[10px] font-bold text-primary bg-primary/5 px-2 py-0.5 rounded-full uppercase">Optional</span>
+                    <label className="text-xs font-bold uppercase tracking-wider text-text-muted">
+                       {category ? "Set Monthly Budget" : "Initial Monthly Budget"}
+                    </label>
+                    <span className="text-[10px] font-bold text-rose-500 bg-rose-50 px-2 py-0.5 rounded-full uppercase border border-rose-100">Required *</span>
                   </div>
                   <div className="relative group">
                     <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-primary transition-colors" />
                     <input
                       type="number"
-                      min="0"
+                      min="0.01"
                       step="0.01"
                       value={formData.initialBudget}
                       onChange={(e) => setFormData({ ...formData, initialBudget: e.target.value })}
                       className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-slate-50 border border-slate-200 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 outline-none transition-all text-text-main font-medium"
                       placeholder="e.g. 500.00"
+                      required
                     />
                   </div>
-                  <p className="text-[10px] text-text-muted px-1">Setting this will create a budget for the current month automatically.</p>
+                  <p className="text-[10px] text-text-muted px-1">
+                    {category 
+                      ? "Converting to expense requires setting a budget for the current month." 
+                      : "Setting this creates your budget for the current month instantly."}
+                  </p>
                </div>
             )}
           </form>

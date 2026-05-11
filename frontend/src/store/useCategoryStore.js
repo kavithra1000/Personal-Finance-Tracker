@@ -47,13 +47,31 @@ export const useCategoryStore = create((set) => ({
 
   updateCategory: async (id, categoryData) => {
     try {
-      const res = await axiosInstance.put(`/category/${id}`, categoryData);
+      const { initialBudget, ...data } = categoryData;
+      const res = await axiosInstance.put(`/category/${id}`, data);
+      const updatedCategory = res.data.category;
+
       set((state) => ({
         categories: state.categories.map((category) =>
-          category._id === id ? res.data.category : category
+          category._id === id ? updatedCategory : category
         ),
       }));
-      return { success: true, category: res.data.category };
+
+      // If initialBudget is provided, create a budget
+      if (initialBudget && data.type === "expense") {
+        try {
+          await axiosInstance.post("/budgets", {
+            category: id,
+            amount: Number(initialBudget),
+            periodMonth: new Date().getMonth() + 1,
+            periodYear: new Date().getFullYear(),
+          });
+        } catch (budgetError) {
+          console.error("Failed to create budget during update:", budgetError);
+        }
+      }
+
+      return { success: true, category: updatedCategory };
     } catch (error) {
       return { success: false, message: error.response?.data?.message || "Failed to update category" };
     }
