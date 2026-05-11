@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 import { 
   LogOut, LayoutDashboard, PiggyBank, Layers, 
-  Menu, X, Wallet, User, ChevronDown, Bell
+  Menu, X, Wallet, User, Bell
 } from "lucide-react";
 
 export default function Navbar() {
@@ -45,12 +45,12 @@ export default function Navbar() {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform duration-300">
-              <span className="text-white font-black text-xl italic">F</span>
+            <div className="px-2.5 py-2 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform duration-300">
+              <span className="text-white font-black text-md sm:text-xl italic">PFT</span>
             </div>
             <div className="hidden xs:block">
-              <span className="text-xl font-black text-text-main tracking-tight group-hover:text-primary transition-colors">Finance</span>
-              <span className="text-xl font-light text-text-muted tracking-tight group-hover:text-primary transition-colors">Tracker</span>
+              <span className="text-xl font-black text-text-main tracking-tight group-hover:text-primary transition-colors">Personal</span>
+              <span className="text-xl font-light text-text-muted tracking-tight group-hover:text-primary transition-colors">Finance Tracker</span>
             </div>
           </Link>
 
