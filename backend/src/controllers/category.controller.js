@@ -27,6 +27,11 @@ export const addCategory = async (req, res) => {
             category,
         });
     } catch (error) {
+        if (error.code === 11000) {
+            return res.status(400).json({
+                message: `Category '${req.body.name}' already exists as an ${req.body.type}.`,
+            });
+        }
         console.log("Add Category Error:", error.message);
 
         res.status(500).json({
@@ -93,6 +98,11 @@ export const updateCategory = async (req, res) => {
             category: updatedCategory,
         });
     } catch (error) {
+        if (error.code === 11000) {
+            return res.status(400).json({
+                message: `A category with this name already exists for the selected type.`,
+            });
+        }
         console.log("Update Category Error:", error.message);
 
         res.status(500).json({
