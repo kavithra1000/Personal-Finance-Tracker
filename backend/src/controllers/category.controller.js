@@ -1,6 +1,7 @@
 import Category from "../models/category.model.js";
 import User from "../models/user.model.js";
 import Budget from "../models/budget.model.js";
+import Transaction from "../models/transaction.model.js";
 
 export const addCategory = async (req, res) => {
     try {
@@ -103,30 +104,64 @@ export const updateCategory = async (req, res) => {
 export const deleteCategory = async (req, res) => {
     try {
         const { id } = req.params;
+        const { transferToId } = req.body;
 
-        if (!id) {
+        if (!transferToId) {
             return res.status(400).json({
-                message: "ID is required",
+                message: "A transfer category is required to move existing transactions.",
             });
         }
 
-        const deletedCategory = await Category.findOneAndDelete({
+        // 1. Verify the category being deleted exists and belongs to the user
+        const categoryToDelete = await Category.findOne({
             _id: id,
-            user: req.user._id, // 🔐 important security check
+            user: req.user._id,
         });
 
-        if (!deletedCategory) {
+        if (!categoryToDelete) {
             return res.status(404).json({
-                message: "Category not found or not authorized",
+                message: "Category to delete not found or not authorized",
             });
         }
 
+        // 2. Verify the target category exists, belongs to the user, and matches the type
+        const targetCategory = await Category.findOne({
+            _id: transferToId,
+            user: req.user._id,
+        });
+
+        if (!targetCategory) {
+            return res.status(404).json({
+                message: "Target category not found or not authorized",
+            });
+        }
+
+        if (targetCategory.type !== categoryToDelete.type) {
+            return res.status(400).json({
+                message: `Cannot transfer transactions from ${categoryToDelete.type} to ${targetCategory.type}`,
+            });
+        }
+
+        // 3. Migrate all transactions
+        await Transaction.updateMany(
+            { category: id, user: req.user._id },
+            { category: transferToId }
+        );
+
+        // 4. Delete all budgets associated with the old category
+        await Budget.deleteMany({
+            category: id,
+            user: req.user._id,
+        });
+
+        // 5. Finally delete the category
+        await Category.findByIdAndDelete(id);
+
         res.status(200).json({
-            message: "Category deleted successfully",
+            message: "Category deleted and transactions reassigned successfully",
         });
     } catch (error) {
         console.log("Delete Category Error:", error.message);
-
         res.status(500).json({
             message: "Internal server error",
         });
