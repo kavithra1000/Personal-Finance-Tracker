@@ -1,10 +1,8 @@
 import { useState, useEffect } from "react";
-import { useTransactionStore } from "../store/useTransactionStore";
 import { useCategoryStore } from "../store/useCategoryStore";
 import { X, Loader, Plus } from "lucide-react";
 
-export default function TransactionForm({ onClose }) {
-  const { addTransaction, isAdding } = useTransactionStore();
+export default function TransactionForm({ transaction = null, onClose, onSave, isSaving }) {
   const { categories, fetchCategories, addCategory } = useCategoryStore();
 
   const [formData, setFormData] = useState({
@@ -18,7 +16,6 @@ export default function TransactionForm({ onClose }) {
 
   const [message, setMessage] = useState({ type: "", text: "" });
 
-  // Inline Category Creation State
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newCategoryColor, setNewCategoryColor] = useState("#3b82f6");
@@ -28,8 +25,29 @@ export default function TransactionForm({ onClose }) {
     fetchCategories();
   }, [fetchCategories]);
 
-  // Filter categories based on selected type
-  const filteredCategories = categories.filter(c => c.type === formData.type);
+  useEffect(() => {
+    if (transaction) {
+      setFormData({
+        title: transaction.title || "",
+        amount: transaction.amount || "",
+        type: transaction.type || "expense",
+        category: transaction.category?._id || transaction.category || "",
+        date: transaction.date ? new Date(transaction.date).toISOString().split("T")[0] : new Date().toISOString().split("T")[0],
+        note: transaction.note || "",
+      });
+    } else {
+      setFormData({
+        title: "",
+        amount: "",
+        type: "expense",
+        category: "",
+        date: new Date().toISOString().split("T")[0],
+        note: "",
+      });
+    }
+  }, [transaction]);
+
+  const filteredCategories = categories.filter((c) => c.type === formData.type);
 
   const handleCreateCategory = async () => {
     if (!newCategoryName.trim()) {
@@ -43,7 +61,7 @@ export default function TransactionForm({ onClose }) {
     const res = await addCategory({
       name: newCategoryName,
       type: formData.type,
-      color: newCategoryColor
+      color: newCategoryColor,
     });
 
     setIsAddingCategory(false);
@@ -66,15 +84,16 @@ export default function TransactionForm({ onClose }) {
       return;
     }
 
-    const res = await addTransaction({
+    const payload = {
       ...formData,
-      amount: Number(formData.amount)
-    });
+      amount: Number(formData.amount),
+    };
 
-    if (res.success) {
+    const result = await onSave(payload, transaction?._id);
+    if (result.success) {
       onClose();
     } else {
-      setMessage({ type: "error", text: res.message });
+      setMessage({ type: "error", text: result.message || "Unable to save transaction" });
     }
   };
 
@@ -82,7 +101,7 @@ export default function TransactionForm({ onClose }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div className="bg-surface w-full max-w-md rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
         <div className="flex justify-between items-center p-6 border-b border-slate-200">
-          <h2 className="text-xl font-bold text-text-main">Add Transaction</h2>
+          <h2 className="text-xl font-bold text-text-main">{transaction ? "Edit Transaction" : "Add Transaction"}</h2>
           <button onClick={onClose} className="text-text-muted hover:text-text-main transition-colors">
             <X className="w-6 h-6" />
           </button>
@@ -96,7 +115,6 @@ export default function TransactionForm({ onClose }) {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Type Toggle */}
             <div className="flex p-1 bg-background rounded-lg border border-slate-200">
               <button
                 type="button"
@@ -229,10 +247,10 @@ export default function TransactionForm({ onClose }) {
 
             <button
               type="submit"
-              disabled={isAdding || isCreatingCategory}
+              disabled={isSaving || isCreatingCategory}
               className="w-full py-3 mt-4 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center shadow-md shadow-primary/20"
             >
-              {isAdding ? <Loader className="w-5 h-5 animate-spin" /> : "Save Transaction"}
+              {isSaving ? <Loader className="w-5 h-5 animate-spin" /> : transaction ? "Save Changes" : "Save Transaction"}
             </button>
           </form>
         </div>

@@ -6,6 +6,8 @@ import ProfilePage from "./pages/ProfilePage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import TransactionsPage from "./pages/TransactionsPage";
+import BudgetsPage from "./pages/BudgetsPage";
+import CategoriesPage from "./pages/CategoriesPage";
 import { useAuthStore } from "./store/useAuthStore";
 import { useEffect } from "react";
 import { Loader } from "lucide-react";
@@ -44,6 +46,8 @@ function App() {
           <Route path="/dashboard" element={user ? <div className="p-8 text-center"><h1 className="text-3xl text-text-main">Dashboard (Coming Soon)</h1></div> : <Navigate to="/login" />} />
           
           <Route path="/transactions" element={user ? <TransactionsPage /> : <Navigate to="/login" />} />
+          <Route path="/budgets" element={user ? <BudgetsPage /> : <Navigate to="/login" />} />
+          <Route path="/categories" element={user ? <CategoriesPage /> : <Navigate to="/login" />} />
         </Routes>
       </main>
     </div>
