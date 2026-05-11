@@ -5,6 +5,7 @@ export const useTransactionStore = create((set) => ({
   transactions: [],
   isLoading: false,
   isAdding: false,
+  isUpdating: false,
   isDeleting: false,
   error: null,
 
@@ -40,6 +41,23 @@ export const useTransactionStore = create((set) => ({
     } catch (error) {
       set({ isAdding: false });
       return { success: false, message: error.response?.data?.error || "Failed to add transaction" };
+    }
+  },
+
+  updateTransaction: async (id, transactionData) => {
+    set({ isUpdating: true });
+    try {
+      const res = await axiosInstance.put(`/transactions/${id}`, transactionData);
+      set((state) => ({
+        transactions: state.transactions.map((transaction) =>
+          transaction._id === id ? res.data.data : transaction
+        ),
+        isUpdating: false,
+      }));
+      return { success: true };
+    } catch (error) {
+      set({ isUpdating: false });
+      return { success: false, message: error.response?.data?.error || "Failed to update transaction" };
     }
   },
 

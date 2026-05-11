@@ -25,4 +25,28 @@ export const useCategoryStore = create((set) => ({
       return { success: false, message: error.response?.data?.message || "Failed to add category" };
     }
   },
+
+  updateCategory: async (id, categoryData) => {
+    try {
+      const res = await axiosInstance.put(`/category/${id}`, categoryData);
+      set((state) => ({
+        categories: state.categories.map((category) =>
+          category._id === id ? res.data.category : category
+        ),
+      }));
+      return { success: true, category: res.data.category };
+    } catch (error) {
+      return { success: false, message: error.response?.data?.message || "Failed to update category" };
+    }
+  },
+
+  deleteCategory: async (id) => {
+    try {
+      await axiosInstance.delete(`/category/${id}`);
+      set((state) => ({ categories: state.categories.filter((category) => category._id !== id) }));
+      return { success: true };
+    } catch (error) {
+      return { success: false, message: error.response?.data?.message || "Failed to delete category" };
+    }
+  },
 }));

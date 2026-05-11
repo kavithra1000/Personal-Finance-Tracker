@@ -1,17 +1,25 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTransactionStore } from "../store/useTransactionStore";
+import { useCategoryStore } from "../store/useCategoryStore";
 import { format } from "date-fns";
-import { Plus, Trash2, ArrowUpRight, ArrowDownRight, Loader } from "lucide-react";
+import { Plus, Trash2, Edit3, ArrowUpRight, ArrowDownRight, Loader } from "lucide-react";
 import TransactionForm from "../components/TransactionForm";
 
 export default function TransactionsPage() {
-  const { transactions, isLoading, fetchTransactions, deleteTransaction, isDeleting } = useTransactionStore();
+  const { transactions, isLoading, fetchTransactions, addTransaction, deleteTransaction, updateTransaction, isDeleting, isUpdating } = useTransactionStore();
+  const { categories, fetchCategories } = useCategoryStore();
   const [showAddModal, setShowAddModal] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [filterType, setFilterType] = useState("");
+  const [filterCategory, setFilterCategory] = useState("");
 
   useEffect(() => {
-    fetchTransactions({ type: filterType });
-  }, [fetchTransactions, filterType]);
+    fetchCategories();
+  }, [fetchCategories]);
+
+  useEffect(() => {
+    fetchTransactions({ type: filterType, category: filterCategory });
+  }, [fetchTransactions, filterType, filterCategory]);
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this transaction?")) {
@@ -19,15 +27,44 @@ export default function TransactionsPage() {
     }
   };
 
+  const handleEdit = (transaction) => {
+    setSelectedTransaction(transaction);
+    setShowAddModal(true);
+  };
+
+  const handleClose = () => {
+    setShowAddModal(false);
+    setSelectedTransaction(null);
+  };
+
+  const handleSave = async (transactionData, id) => {
+    if (id) {
+      return await updateTransaction(id, transactionData);
+    }
+
+    return await addTransaction(transactionData);
+  };
+
+  const filteredCategories = useMemo(
+    () => {
+      if (!filterType) return categories;
+      return categories.filter((category) => category.type === filterType);
+    },
+    [categories, filterType]
+  );
+
   return (
-    <div className="container mx-auto p-4 py-8 max-w-5xl">
+    <div className="container mx-auto p-4 py-8 max-w-6xl">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <div>
           <h1 className="text-3xl font-bold text-text-main">Transactions</h1>
-          <p className="text-text-muted mt-1">Manage your income and expenses</p>
+          <p className="text-text-muted mt-1">Manage your income and expenses.</p>
         </div>
         <button
-          onClick={() => setShowAddModal(true)}
+          onClick={() => {
+            setSelectedTransaction(null);
+            setShowAddModal(true);
+          }}
           className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors shadow-md shadow-primary/20"
         >
           <Plus className="w-5 h-5" />
@@ -36,16 +73,32 @@ export default function TransactionsPage() {
       </div>
 
       <div className="bg-surface rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
-        <div className="p-4 border-b border-slate-200 bg-background/50 flex gap-2">
-          <select 
-            value={filterType} 
-            onChange={(e) => setFilterType(e.target.value)}
-            className="px-3 py-1.5 rounded-lg bg-surface border border-slate-200 text-sm outline-none focus:border-primary text-text-main"
+        <div className="p-4 border-b border-slate-200 bg-background/50 grid gap-2 md:grid-cols-3">
+          <select
+            value={filterType}
+            onChange={(e) => {
+              setFilterType(e.target.value);
+              setFilterCategory("");
+            }}
+            className="px-3 py-2 rounded-lg bg-surface border border-slate-200 text-sm outline-none focus:border-primary text-text-main"
           >
             <option value="">All Types</option>
             <option value="income">Income Only</option>
             <option value="expense">Expense Only</option>
           </select>
+
+          <select
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
+            className="px-3 py-2 rounded-lg bg-surface border border-slate-200 text-sm outline-none focus:border-primary text-text-main"
+          >
+            <option value="">All Categories</option>
+            {filteredCategories.map((category) => (
+              <option key={category._id} value={category._id}>{category.name}</option>
+            ))}
+          </select>
+
+          <div className="text-sm text-text-muted py-2">Showing {transactions.length} transaction{transactions.length === 1 ? "" : "s"}</div>
         </div>
 
         {isLoading ? (
@@ -55,8 +108,11 @@ export default function TransactionsPage() {
         ) : transactions.length === 0 ? (
           <div className="p-12 text-center">
             <p className="text-text-muted">No transactions found.</p>
-            <button 
-              onClick={() => setShowAddModal(true)}
+            <button
+              onClick={() => {
+                setSelectedTransaction(null);
+                setShowAddModal(true);
+              }}
               className="mt-4 text-primary hover:underline"
             >
               Add your first transaction
@@ -86,12 +142,12 @@ export default function TransactionsPage() {
                     </td>
                     <td className="p-4">
                       {tx.category ? (
-                        <span 
+                        <span
                           className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
-                          style={{ 
-                            backgroundColor: `${tx.category.color}15`, 
+                          style={{
+                            backgroundColor: `${tx.category.color}15`,
                             color: tx.category.color,
-                            borderColor: `${tx.category.color}30`
+                            borderColor: `${tx.category.color}30`,
                           }}
                         >
                           {tx.category.name}
@@ -108,11 +164,18 @@ export default function TransactionsPage() {
                           <ArrowDownRight className="w-4 h-4 text-red-500" />
                         )}
                         <span className={`font-semibold ${tx.type === "income" ? "text-green-600" : "text-text-main"}`}>
-                          ${tx.amount.toFixed(2)}
+                          ${Number(tx.amount).toFixed(2)}
                         </span>
                       </div>
                     </td>
-                    <td className="p-4 text-center">
+                    <td className="p-4 text-center flex justify-center gap-1">
+                      <button
+                        onClick={() => handleEdit(tx)}
+                        className="p-2 text-text-muted hover:text-text-main hover:bg-slate-100 rounded-lg transition-colors"
+                        title="Edit"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                      </button>
                       <button
                         onClick={() => handleDelete(tx._id)}
                         disabled={isDeleting}
@@ -130,7 +193,14 @@ export default function TransactionsPage() {
         )}
       </div>
 
-      {showAddModal && <TransactionForm onClose={() => setShowAddModal(false)} />}
+      {showAddModal && (
+        <TransactionForm
+          transaction={selectedTransaction}
+          onClose={handleClose}
+          onSave={handleSave}
+          isSaving={isUpdating}
+        />
+      )}
     </div>
   );
 }
