@@ -58,9 +58,8 @@ personal-finance-app/
 │       │
 │       ├── services/                # Business logic layer
 │       │
-│       ├── utils/                   # Helper functions and shared utilities
-│       │
-│       └── validators/              # Input validation schemas (Joi / Zod)
+│       └──utils/                   # Helper functions and shared utilities
+│       
 │
 ├── .gitignore
 └── README.md
@@ -70,32 +69,100 @@ personal-finance-app/
 
 ## 🔑 Core Features
 
-### 1. 🔐 User Authentication
+### 1. User Authentication
 - Signup / Login with email & password
 - JWT token-based session management
 - Secure password hashing with bcrypt
 
-### 2. 💸 Income & Expense Tracking
+### 2. Income & Expense Tracking
 - Add, edit, and delete transactions
 - Categorize expenses (Food, Rent, Salary, Entertainment, etc.)
 - Filter transactions by date and category
 
-### 3. 📊 Budget Management
+### 3. Budget Management
 - Set monthly / weekly budgets per category
 - Track spending against defined limits
 - Alerts when nearing or exceeding budget
 
-### 4. 📈 Dashboard & Insights
-- Visual charts powered by Chart.js / Recharts
+### 4. Category Management
+- Set category with monthly / weekly budgets
+- View, and update category with monthly limits.
+
+### 5. Dashboard & Insights
+- Visual charts powered by Recharts
 - Monthly income vs. expense summaries
 - Expense distribution by category (pie / donut charts)
 - Savings tracking over time
+
+### 5. Reports
+- Generate reports for transactions, budgets, and financial trends.
+
+---
+
+## Technologies Used
+
+- **Backend**: Node.js, Express.js
+- **Database**: MongoDB (Mongoose ODM)
+- **Authentication**: JSON Web Tokens (JWT)
+- **Testing**: Postman
+- **Storage**: Cloudinary
+- **UI**: Tailwind, Rechart, Framer
+- **Tools**: git, Github, VS code, Antigravity
+
+---
+
+## API Endpoints
+
+### Authentication 
+
+- **Register User**: `POST /auth/signup`
+- **Login User**: `POST /auth/signin`
+- **Logout User**: `PUT /auth/logout`
+- **Get User Profile**: `GET /auth/profile`
+- **Get User**: `DELETE /auth/me`
+
+### Transactions
+
+- **Create Transaction**: `POST /transactions/`
+- **Get All Transactions**: `GET /transactions/`
+- **Update Transaction**: `PUT /transactions/updatetransaction/:id`
+- **Delete Transaction**: `DELETE /transactions/deletetransaction/:id`
+
+### Budget Management
+
+- **Create Budget**: `POST /budget/`
+- **Get All Budgets**: `GET /budget/`
+- **Update Budget**: `PUT /budget/:id`
+- **Delete Budget**: `DELETE /budget/:id`
+
+### Category Management
+
+- **Create Category**: `POST /category/`
+- **Get All Category**: `GET /category/`
+- **Update Category**: `PUT /category/:id`
+- **Delete Category**: `DELETE /category/:id`
+- **Get Specific Category**: `GET /category/:id`
+- **Category exists**: `GET /category/check-exists`
+
+### Insights Management
+
+- **Create Insights**: `GET /insights/summary`
+- **Get All Insights**: `GET /insights/expense-distribution`
+- **Update Insights**: `GET /insights/monthly-trend`
+- **Delete Insights**: `GET /insights/budget-vs-actual`
+- **Get Specific Insights**: `GET /insights/reports`
 
 ---
 
 ## ⚙️ Installation & Setup
 
-### 1. Clone the Repository
+### 1. Prerequisites
+
+- Node.js installed
+- MongoDB Atlas database
+- Cloudinary Storage
+
+### 2. Clone the Repository
 
 ```bash
 git clone https://github.com/kavithra1000/Personal-Finance-Tracker
@@ -120,29 +187,32 @@ npm run dev
 
 ### 4. Environment Variables
 
-Create a `.env` file in both the `frontend` and `backend` directories:
+Create a `.env` file `backend` directory:
 
 ```env
 # ── Backend ──────────────────────────────
-PORT=5000
+PORT=5001
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_secret_key
+CLOUDINARY_CLOUD_NAME=your_cloudinary_name
+CLOUDINARY_API_KEY=your_your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_your_cloudinary_secret_key
 
-# ── Frontend ─────────────────────────────
-NEXT_PUBLIC_API_URL=http://localhost:5000
-```
 
 ---
-
 
 ## 📈 Future Enhancements
 
-- [ ] Export reports as CSV / PDF
 - [ ] Import bank statement as CSV / PDF
-- [ ] Multi-currency support
+- [ ] Multi-currency, language support
+- [ ] Notification support
 - [ ] Dark mode UI
 
 ---
+
+## Contributing
+
+Feel free to submit pull requests or issues for improvements.
 
 ## 👨‍💻 Author
 
