@@ -1,5 +1,5 @@
 import { generateToken } from "../config/utils.js";
-import * as authService from "../services/authService.js";
+import * as authService from "../services/auth.service.js";
 
 const ERROR_MAP = {
   MISSING_FIELDS:      { status: 400, message: "All fields are required" },

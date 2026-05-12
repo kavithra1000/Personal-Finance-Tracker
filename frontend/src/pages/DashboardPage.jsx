@@ -11,6 +11,7 @@ import CashflowChart from "../components/dashboard/CashflowChart";
 import BudgetProgress from "../components/dashboard/BudgetProgress";
 import ExpenseDistribution from "../components/dashboard/ExpenseDistribution";
 import RecentTransactions from "../components/dashboard/RecentTransactions";
+import ReportDownload from "../components/dashboard/ReportDownload";
 
 const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
@@ -49,6 +50,13 @@ export default function DashboardPage() {
         onYearChange={setFilterYear}
         months={months}
       />
+
+      <div className="flex flex-col gap-2">
+        <p className="hidden lg:block text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1 ml-1">
+          Download Statements
+        </p>
+        <ReportDownload month={filterMonth} year={filterYear} />
+      </div>
 
       <div className="space-y-6 md:space-y-8">
         {!isLoading && budgetVsActual.some(b => b.actualSpent > b.budgetAmount) && (

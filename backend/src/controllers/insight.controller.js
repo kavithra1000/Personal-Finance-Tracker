@@ -1,4 +1,4 @@
-import * as insightService from "../services/insightService.js";
+import * as insightService from "../services/insight.service.js";
 
 const ERROR_MAP = {
   MISSING_PERIOD: { status: 400, error: "Please provide periodMonth and periodYear" },

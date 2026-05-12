@@ -8,6 +8,40 @@ export const useInsightStore = create((set) => ({
   monthlyTrend: [],
   budgetVsActual: [],
   isLoading: false,
+  isExporting: false, // Track export state separately
+
+  downloadReport: async (filters = {}) => {
+    const { month, year, format } = filters;
+    set({ isExporting: true });
+
+    try {
+      const res = await axiosInstance.get("/insights/reports", {
+        params: { month, year, format },
+        responseType: "blob", // CRITICAL for handling PDF/Excel binary data
+      });
+
+      // Create a blob URL and trigger download
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement("a");
+      link.href = url;
+
+      const extension = format === "excel" ? "xlsx" : "pdf";
+      link.setAttribute("download", `Finance_Report_${month}_${year}.${extension}`);
+
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup DOM
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast.success(`${format.toUpperCase()} report generated!`);
+    } catch (error) {
+      console.error("Export error:", error);
+      toast.error("Failed to download report");
+    } finally {
+      set({ isExporting: false });
+    }
+  },
 
   fetchSummary: async (filters = {}) => {
     set({ isLoading: true });
@@ -60,18 +94,18 @@ export const useInsightStore = create((set) => ({
   fetchAllInsights: async (filters = {}) => {
     set({ isLoading: true });
     try {
-      await Promise.all([
+      const [summaryRes, distributionRes, trendRes, budgetRes] = await Promise.all([
         axiosInstance.get("/insights/summary", { params: filters }),
         axiosInstance.get("/insights/expense-distribution", { params: filters }),
         axiosInstance.get("/insights/monthly-trend"),
         axiosInstance.get("/insights/budget-vs-actual", { params: filters }),
-      ]).then(([summaryRes, distributionRes, trendRes, budgetRes]) => {
-        set({
-          summary: summaryRes.data.data,
-          expenseDistribution: distributionRes.data.data,
-          monthlyTrend: trendRes.data.data,
-          budgetVsActual: budgetRes.data.data,
-        });
+      ]);
+
+      set({
+        summary: summaryRes.data.data,
+        expenseDistribution: distributionRes.data.data,
+        monthlyTrend: trendRes.data.data,
+        budgetVsActual: budgetRes.data.data,
       });
     } catch (error) {
       console.error("Error fetching all insights:", error);
