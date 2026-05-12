@@ -1,4 +1,4 @@
-import * as categoryService from "../services/categoryService.js";
+import * as categoryService from "../services/category.service.js";
 
 const ERROR_MAP = {
   MISSING_FIELDS:    { status: 400, message: "Name and type are required" },

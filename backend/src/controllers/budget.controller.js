@@ -1,4 +1,4 @@
-import * as budgetService from "../services/budgetService.js";
+import * as budgetService from "../services/budget.service.js";
 
 const ERROR_MAP = {
   BUDGET_ALREADY_EXISTS: { status: 400, error: "Budget already exists for this category and period" },

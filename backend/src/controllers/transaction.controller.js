@@ -1,4 +1,4 @@
-import * as transactionService from "../services/transactionService.js";
+import * as transactionService from "../services/transaction.service.js";
 
 const ERROR_MAP = {
   TRANSACTION_NOT_FOUND: { status: 404, error: "Transaction not found" },
