@@ -58,8 +58,8 @@ export default function BudgetProgress({ data }) {
                   textTransform: "uppercase" 
                 }} 
               />
-              <Bar dataKey="budget" fill="#f1f5f9" radius={[0, 4, 4, 0]} name="Limit" barSize={10} />
-              <Bar dataKey="spent" radius={[0, 4, 4, 0]} name="Spent" barSize={10}>
+              <Bar dataKey="budget" fill="#00ff91" radius={[0, 4, 4, 0]} name="Limit" barSize={10} />
+              <Bar dataKey="spent" fill="#3b82f6" radius={[0, 4, 4, 0]} name="Spent" barSize={10}>
                 {chartData.map((entry, index) => (
                   <Cell 
                     key={`cell-${index}`} 
