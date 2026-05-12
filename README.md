@@ -29,6 +29,7 @@ personal-finance-app/
 │
 ├── frontend/
 │   ├── public/
+│   │
 │   └── src/
 │       ├── assets/                  # Static files: images, icons, fonts
 │       │
@@ -36,13 +37,17 @@ personal-finance-app/
 │       │   ├── budgets/             # Budget cards, progress bars, limit forms
 │       │   ├── categories/          # Category badges, icons, selectors
 │       │   ├── dashboard/           # Summary cards, charts, widgets
-│       │   └── transaction/         # Transaction list, form, filters
+│       │   ├── transactions/        # Transaction list, form, filters
 │       │
-│       ├── lib/                     # Utility libraries and API clients
+│       ├── pages/                   # React page components
 │       │
-│       ├── pages/                   # Next.js pages / route-level components
+│       ├── store/                   # Global state management (Redux / Zustand
 │       │
-│       └── store/                   # Global state management (Redux / Zustand)
+│       ├── lib/                     # External library configs and API clients
+│       │
+│       ├── App.jsx                  # Main app component
+│       ├── main.jsx                 # React app entry point
+│       └── index.css                # Global styles
 │
 ├── backend/
 │   └── src/
@@ -58,11 +63,12 @@ personal-finance-app/
 │       │
 │       ├── services/                # Business logic layer
 │       │
-│       └──utils/                   # Helper functions and shared utilities
-│       
+│       └── utils/                   # Helper functions and shared utilities
 │
 ├── .gitignore
-└── README.md
+├── README.md
+├── package.json
+└── docker-compose.yml               # Optional container setup
 ```
 
 ---
