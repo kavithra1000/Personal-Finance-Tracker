@@ -19,13 +19,13 @@ export default function DashboardPage() {
   const [filterYear, setFilterYear] = useState(new Date().getFullYear());
 
   const { transactions, fetchTransactions, isLoading: isTxLoading } = useTransactionStore();
-  const { 
-    summary, 
-    expenseDistribution, 
-    monthlyTrend, 
-    budgetVsActual, 
-    isLoading: isInsightLoading, 
-    fetchAllInsights 
+  const {
+    summary,
+    expenseDistribution,
+    monthlyTrend,
+    budgetVsActual,
+    isLoading: isInsightLoading,
+    fetchAllInsights
   } = useInsightStore();
 
   useEffect(() => {
@@ -38,18 +38,20 @@ export default function DashboardPage() {
 
   const isLoading = isTxLoading || isInsightLoading;
 
+  console.log("Budget vs Actual:", budgetVsActual);
+
   return (
     <div className="container mx-auto px-4 py-6 md:py-10 max-w-7xl">
-      <DashboardHeader 
-        month={filterMonth} 
-        year={filterYear} 
-        onMonthChange={setFilterMonth} 
-        onYearChange={setFilterYear} 
+      <DashboardHeader
+        month={filterMonth}
+        year={filterYear}
+        onMonthChange={setFilterMonth}
+        onYearChange={setFilterYear}
         months={months}
       />
 
       <div className="space-y-6 md:space-y-8">
-        {!isLoading && budgetVsActual.some(b => b.isExceeded) && (
+        {!isLoading && budgetVsActual.some(b => b.actualSpent > b.budgetAmount) && (
           <BudgetAlerts data={budgetVsActual} />
         )}
 
