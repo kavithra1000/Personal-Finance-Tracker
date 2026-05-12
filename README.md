@@ -197,8 +197,7 @@ JWT_SECRET=your_secret_key
 CLOUDINARY_CLOUD_NAME=your_cloudinary_name
 CLOUDINARY_API_KEY=your_your_cloudinary_api_key
 CLOUDINARY_API_SECRET=your_your_cloudinary_secret_key
-
-
+```
 ---
 
 ## 📈 Future Enhancements
