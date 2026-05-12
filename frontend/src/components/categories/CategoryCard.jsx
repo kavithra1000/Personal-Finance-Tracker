@@ -1,4 +1,3 @@
-import React from 'react';
 import { Tag, Edit3, Trash2, TrendingDown, TrendingUp, Activity, DollarSign } from 'lucide-react';
 
 /**
@@ -9,6 +8,13 @@ import { Tag, Edit3, Trash2, TrendingDown, TrendingUp, Activity, DollarSign } fr
  *  - handleDelete: (category) => void
  */
 export default function CategoryCard({ category, insight, handleEdit, handleDelete }) {
+
+  function capitalizeFirstLetter(text) {
+    if (!text) return "";
+
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  }
+
   return (
     <div
       className="group flex flex-col sm:flex-row sm:items-center justify-between p-4 px-4 md:px-8 hover:bg-slate-50 transition-colors"
@@ -23,14 +29,13 @@ export default function CategoryCard({ category, insight, handleEdit, handleDele
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 md:gap-3 flex-wrap">
             <h3 className="font-bold text-text-main text-base md:text-lg leading-none truncate">
-              {category.name}
+              {capitalizeFirstLetter(category.name)}
             </h3>
             <span
-              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[8px] md:text-[9px] font-black uppercase tracking-wider border whitespace-nowrap ${
-                category.type === 'expense'
+              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[8px] md:text-[9px] font-black uppercase tracking-wider border whitespace-nowrap ${category.type === 'expense'
                   ? 'bg-rose-50 text-rose-600 border-rose-100'
                   : 'bg-emerald-50 text-emerald-600 border-emerald-100'
-              }`}
+                }`}
             >
               {category.type === 'expense' ? <TrendingDown className="w-2.5 h-2.5" /> : <TrendingUp className="w-2.5 h-2.5" />}
               {category.type}

@@ -14,6 +14,12 @@ export default function BudgetCard({ budget, monthNames, handleEdit, handleDelet
   const categoryName = budget.category?.name || 'Unknown';
   const categoryColor = budget.category?.color || '#3b82f6';
 
+  function capitalizeFirstLetter(text) {
+    if (!text) return "";
+
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  }
+
   return (
     <div
       className="group relative bg-surface rounded-3xl border border-slate-200 p-6 md:p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden"
@@ -34,7 +40,7 @@ export default function BudgetCard({ budget, monthNames, handleEdit, handleDelet
           </div>
           <div className="min-w-0">
             <h3 className="font-bold text-text-main text-base md:text-lg truncate">
-              {categoryName}
+              {capitalizeFirstLetter(categoryName)}
             </h3>
             <p className="text-[10px] md:text-[11px] font-bold text-text-muted uppercase tracking-widest truncate">
               {monthNames[budget.periodMonth - 1]} {budget.periodYear}

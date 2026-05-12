@@ -1,5 +1,4 @@
-import React from 'react';
-import { Search, Filter, ArrowUpDown, ChevronDown, Calendar } from 'lucide-react';
+import { Search, Filter, ArrowUpDown, ChevronDown } from 'lucide-react';
 
 /**
  * Props:

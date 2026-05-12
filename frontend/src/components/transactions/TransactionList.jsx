@@ -1,21 +1,27 @@
-import { 
-  ArrowUpRight, ArrowDownRight, Calendar, Edit3, Trash2, Search, Loader 
+import {
+  ArrowUpRight, ArrowDownRight, Calendar, Edit3, Trash2, Search, Loader
 } from "lucide-react";
 import { format, isToday, isYesterday } from "date-fns";
 
-export default function TransactionList({ 
-  groupedTransactions, 
-  isLoading, 
-  onEdit, 
-  onDelete, 
+export default function TransactionList({
+  groupedTransactions,
+  isLoading,
+  onEdit,
+  onDelete,
   isDeleting,
-  onResetFilters 
+  onResetFilters
 }) {
   const getDateHeader = (date) => {
     if (isToday(date)) return "Today";
     if (isYesterday(date)) return "Yesterday";
     return format(date, "MMMM dd, yyyy");
   };
+
+  function capitalizeFirstLetter(text) {
+    if (!text) return "";
+
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  }
 
   if (isLoading) {
     return (
@@ -55,24 +61,23 @@ export default function TransactionList({
 
           <div className="divide-y divide-slate-100">
             {group.items.map(tx => (
-              <div 
-                key={tx._id} 
+              <div
+                key={tx._id}
                 className="group flex flex-col sm:flex-row sm:items-center justify-between p-4 md:px-8 hover:bg-slate-50 transition-all"
               >
                 <div className="flex items-start md:items-center gap-3 md:gap-5">
-                  <div className={`h-11 w-11 md:h-12 md:w-12 shrink-0 flex items-center justify-center rounded-2xl ${
-                    tx.type === "income" ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"
-                  } shadow-sm`}>
+                  <div className={`h-11 w-11 md:h-12 md:w-12 shrink-0 flex items-center justify-center rounded-2xl ${tx.type === "income" ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"
+                    } shadow-sm`}>
                     {tx.type === "income" ? <ArrowUpRight className="h-6 w-6" /> : <ArrowDownRight className="h-6 w-6" />}
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="font-bold text-text-main text-sm md:text-base truncate">{tx.title}</h3>
+                      <h3 className="font-bold text-text-main text-sm md:text-base truncate">{capitalizeFirstLetter(tx.title)}</h3>
                       {tx.category && (
-                        <span 
+                        <span
                           className="px-2 py-0.5 rounded-lg text-[9px] md:text-[10px] font-bold uppercase tracking-wider whitespace-nowrap"
-                          style={{ 
-                            backgroundColor: `${tx.category.color}15`, 
+                          style={{
+                            backgroundColor: `${tx.category.color}15`,
                             color: tx.category.color,
                             border: `1px solid ${tx.category.color}20`
                           }}
@@ -97,7 +102,7 @@ export default function TransactionList({
                   <p className={`text-base md:text-xl font-bold ${tx.type === "income" ? "text-emerald-600" : "text-rose-600"}`}>
                     {tx.type === "income" ? "+" : "-"}${Number(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
-                  
+
                   <div className="flex items-center gap-1.5 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={() => onEdit(tx)}
