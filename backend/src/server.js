@@ -4,6 +4,11 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 
 import { connectDB } from "./config/db.js";
+import authRoutes from "./routes/auth.route.js";
+import categoryRoutes from "./routes/catagory.route.js";
+import transactionRoutes from "./routes/transaction.route.js";
+import budgetRoutes from "./routes/budget.route.js";
+import insightRoutes from "./routes/insight.route.js";
 
 dotenv.config();
 
@@ -23,6 +28,12 @@ app.use(
     credentials: true,
   })
 );
+
+app.use("/api/auth", authRoutes);
+app.use("/api/category", categoryRoutes);
+app.use("/api/transactions", transactionRoutes);
+app.use("/api/budgets", budgetRoutes);
+app.use("/api/insights", insightRoutes);
 
 // Test Route
 app.get("/", (req, res) => {
