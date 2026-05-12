@@ -14,7 +14,7 @@ import { useEffect } from "react";
 import { Loader } from "lucide-react";
 import { Toaster } from "react-hot-toast";
 import Footer from "./components/Footer";
-
+import LandingPage from "./pages/LandingPage";
 function App() {
   const { user, checkAuth, isCheckingAuth } = useAuthStore();
 
@@ -35,7 +35,7 @@ function App() {
       <Navbar />
       <main className="grow">
         <Routes>
-          <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Navigate to="/login" />} />
+          <Route path="/" element={user ? <Navigate to="/dashboard" /> : <LandingPage/>} />
           
           <Route path="/signup" element={!user ? <SignupPage /> : <Navigate to="/" />} />
           <Route path="/login" element={!user ? <LoginPage /> : <Navigate to="/" />} />
