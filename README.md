@@ -37,7 +37,7 @@ personal-finance-app/
 │       │   ├── budgets/             # Budget cards, progress bars, limit forms
 │       │   ├── categories/          # Category badges, icons, selectors
 │       │   ├── dashboard/           # Summary cards, charts, widgets
-│       │   ├── transactions/        # Transaction list, form, filters
+│       │   └── transactions/        # Transaction list, form, filters
 │       │
 │       ├── pages/                   # React page components
 │       │
@@ -67,8 +67,7 @@ personal-finance-app/
 │
 ├── .gitignore
 ├── README.md
-├── package.json
-└── docker-compose.yml               # Optional container setup
+└── package.json
 ```
 
 ---
