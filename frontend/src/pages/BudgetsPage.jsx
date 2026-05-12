@@ -3,8 +3,8 @@ import {
   Plus, Loader, Search } from "lucide-react";
 import { useBudgetStore } from "../store/useBudgetStore";
 import { useCategoryStore } from "../store/useCategoryStore";
-import BudgetForm from "../components/BudgetForm";
-import DeleteBudgetModal from "../components/DeleteBudgetModal";
+import BudgetForm from "../components/budgets/BudgetForm";
+import DeleteBudgetModal from "../components/budgets/DeleteBudgetModal";
 import toast from "react-hot-toast";
 import BudgetStats from "../components/budgets/BudgetStats";
 import BudgetFilters from "../components/budgets/BudgetFilters";

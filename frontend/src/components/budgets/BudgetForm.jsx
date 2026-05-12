@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useCategoryStore } from "../store/useCategoryStore";
+import { useCategoryStore } from "../../store/useCategoryStore";
 import { X, Loader, Plus, Tag, DollarSign, Calendar, ChevronDown } from "lucide-react";
 import toast from "react-hot-toast";
 

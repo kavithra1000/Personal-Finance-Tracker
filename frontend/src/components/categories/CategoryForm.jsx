@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { X, Loader, Tag, Palette, TrendingUp, TrendingDown, DollarSign } from "lucide-react";
-import { useCategoryStore } from "../store/useCategoryStore";
+import { useCategoryStore } from "../../store/useCategoryStore";
 import toast from "react-hot-toast";
 
 export default function CategoryForm({ category = null, onSave, onCancel, isSaving }) {

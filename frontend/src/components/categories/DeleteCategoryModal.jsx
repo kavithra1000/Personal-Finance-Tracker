@@ -3,7 +3,7 @@ import {
   X, AlertTriangle, Loader, ChevronDown, CheckCircle2, Tag,
   Palette, DollarSign, TrendingUp, TrendingDown, Layers
 } from "lucide-react";
-import { useCategoryStore } from "../store/useCategoryStore";
+import { useCategoryStore } from "../../store/useCategoryStore";
 import toast from "react-hot-toast";
 
 export default function DeleteCategoryModal({ category, transactionCount, onConfirm, onCancel, isDeleting }) {

@@ -4,7 +4,7 @@ import {
   ChevronDown, Type, AlignLeft, Plus,
   TrendingUp, TrendingDown, Wallet, Clock
 } from "lucide-react";
-import { useCategoryStore } from "../store/useCategoryStore";
+import { useCategoryStore } from "../../store/useCategoryStore";
 import toast from "react-hot-toast";
 
 export default function TransactionForm({ transaction = null, onSave, onCancel, isSaving }) {

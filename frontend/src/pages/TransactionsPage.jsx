@@ -5,8 +5,8 @@ import { startOfDay } from "date-fns";
 import toast from "react-hot-toast";
 
 // Components
-import TransactionForm from "../components/TransactionForm";
-import DeleteTransactionModal from "../components/DeleteTransactionModal";
+import TransactionForm from "../components/transactions/TransactionForm";
+import DeleteTransactionModal from "../components/transactions/DeleteTransactionModal";
 import TransactionsHeader from "../components/transactions/TransactionsHeader";
 import TransactionSummary from "../components/transactions/TransactionSummary";
 import TransactionFilters from "../components/transactions/TransactionFilters";
